@@ -1,0 +1,32 @@
+name: Feature Request
+description: Propose a new feature, model optimization, or helper script
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please propose features that enhance our vision, control, or planning models for CookieRun Classic.
+        **Reminder**: General game adapters or plugin framework requests are out of scope.
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Description
+      description: Describe the feature or optimization you are proposing.
+      placeholder: e.g., Implement an adaptive jump trigger for double jump obstacles.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Game Mechanics Context
+      description: Describe the obstacle class, jelly patterns, or emulator interface this target addresses.
+      placeholder: e.g., Specifically addresses slide-jump floating obstacles in Stage 3.
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Proposed Implementation Details
+      description: Outline the modules, models, or configurations affected by this change.
+      placeholder: e.g., Adds a custom rule to the policy planner and a safety distance setting in 'configs/policy_heuristics.yaml'.

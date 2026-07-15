@@ -78,13 +78,36 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 show_error_codes = true
 strict = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+warn_no_return = true
+warn_unreachable = true
+local_partial_types = true
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q --import-mode=importlib"
+addopts = "-ra -q --import-mode=importlib --cov=cookie_agent --cov-report=term-missing --cov-report=xml"
 testpaths = [
     "tests",
 ]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "tests/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]

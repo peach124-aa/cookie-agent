@@ -1,0 +1,3 @@
+# CODEOWNERS mapping for the Cookie Agent project
+# All repository files default to the primary developer
+*       @peach124-aa

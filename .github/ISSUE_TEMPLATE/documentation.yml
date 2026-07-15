@@ -1,0 +1,25 @@
+name: Documentation Update
+description: Propose improvements or additions to guides, schemas, or standards
+title: "[DOCS]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use this template to file requests for updating READMEs, architectural logs, coding standard documents, or tutorials.
+  - type: textarea
+    id: gap
+    attributes:
+      label: Documentation Gap
+      description: Describe what is currently missing, incorrect, or requires expansion.
+      placeholder: e.g., Update the architecture guide with the refined 60 FPS frame capture block diagram.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Content Updates
+      description: What should the updated documentation include?
+      placeholder: e.g., Add a section in 'docs/architecture/' detailing display capture frame buffer flow.
+    validations:
+      required: true
