@@ -15,3 +15,10 @@ All reviewed and approved milestone commits for this repository are logged here.
 - **Title**: Development Foundation
 - **Status**: Approved
 - **Description**: Configured pre-commit linter checks, set up pytest-cov with an 80% coverage check threshold, implemented strict typing with mypy, and added Pull Request, Issue, and design RFC/ADR templates.
+
+---
+
+## Commit 0003
+- **Title**: Core Interfaces Specification
+- **Status**: Approved (Design Only)
+- **Description**: Wrote the Software Design Specification (SDS) for all core models (Frame, BBox, TrackedObject, GameState, ActionIntent, etc.) and component protocols (CaptureSource, Detector, Policy, ActionPlanner, etc.).
