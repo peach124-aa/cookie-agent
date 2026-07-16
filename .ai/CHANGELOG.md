@@ -22,3 +22,17 @@ All reviewed and approved milestone commits for this repository are logged here.
 - **Title**: Core Interfaces Specification
 - **Status**: Approved (Design Only)
 - **Description**: Wrote the Software Design Specification (SDS) for all core models (Frame, BBox, TrackedObject, GameState, ActionIntent, etc.) and component protocols (CaptureSource, Detector, Policy, ActionPlanner, etc.).
+
+---
+
+## Commit 0003.5
+- **Title**: Configuration Schema & ADR
+- **Status**: Approved (Design Only)
+- **Description**: Wrote the Configuration Schema Specification detailing YAML parameter schemas and created ADR-0006 establishing the Configuration-First architecture policy.
+
+---
+
+## Commit 0004
+- **Title**: Core Interfaces Package
+- **Status**: Approved
+- **Description**: Created the `cookie_agent.core` Python package containing all frozen, slot-allocated dataclass models (Frame, BBox, Detection, GameState, PlayerState, etc.), string enums (JumpPhase, IntentType, etc.), and PEP 544 protocols (CaptureSource, Detector, Policy, etc.). Wrote full unit test coverage.
