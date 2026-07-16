@@ -16,7 +16,7 @@ def compute_approx_kl(log_probs: list[float], old_log_probs: list[float]) -> flo
     if not log_probs:
         return 0.0
 
-    diffs = [olp - lp for lp, olp in zip(log_probs, old_log_probs)]
+    diffs = [olp - lp for lp, olp in zip(log_probs, old_log_probs, strict=False)]
     return sum(diffs) / len(diffs)
 
 
@@ -40,7 +40,7 @@ def compute_clip_fraction(
 
     clipped_count = 0
     from cookie_agent.rl.losses import clip_ratio
-    
+
     ratios = clip_ratio(log_probs, old_log_probs)
     for ratio in ratios:
         if ratio < (1.0 - epsilon) or ratio > (1.0 + epsilon):

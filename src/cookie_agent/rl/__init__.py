@@ -4,7 +4,16 @@ from cookie_agent.rl.buffer import RolloutBuffer
 from cookie_agent.rl.exceptions import BufferError, RLError
 from cookie_agent.rl.experience import Experience, Trajectory
 from cookie_agent.rl.ppo import PPOAlgorithm, PPOLossResult
+from cookie_agent.rl.protocols import (
+    AgentProtocol,
+    CallbackProtocol,
+    CheckpointProtocol,
+    OptimizerProtocol,
+    SchedulerProtocol,
+)
 from cookie_agent.rl.sampler import MiniBatchSampler
+from cookie_agent.rl.trainer import PPOTrainer
+from cookie_agent.rl.trainer_metrics import EpochMetrics, TrainMetrics
 
 __all__: list[str] = [
     "Experience",
@@ -15,4 +24,12 @@ __all__: list[str] = [
     "BufferError",
     "PPOAlgorithm",
     "PPOLossResult",
+    "PPOTrainer",
+    "EpochMetrics",
+    "TrainMetrics",
+    "AgentProtocol",
+    "CallbackProtocol",
+    "CheckpointProtocol",
+    "OptimizerProtocol",
+    "SchedulerProtocol",
 ]

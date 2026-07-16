@@ -14,6 +14,7 @@ from cookie_agent.rl.metrics import compute_approx_kl, compute_clip_fraction
 @dataclass
 class PPOLossResult:
     """Container for computed PPO loss components."""
+
     policy_loss: float
     value_loss: float
     entropy_loss: float
@@ -24,7 +25,7 @@ class PPOLossResult:
 
 class PPOAlgorithm:
     """Coordinates PPO mathematical functions over sequences of scalars.
-    
+
     This class does not optimize, own parameters, or update neural networks.
     It strictly orchestrates the pure Python math functions for the algorithm.
     """
@@ -38,7 +39,7 @@ class PPOAlgorithm:
         entropy_coef: float = 0.01,
     ) -> None:
         """Initialize PPO hyperparameters.
-        
+
         Args:
             gamma: Discount factor.
             lambda_: GAE smoothing parameter.
@@ -59,12 +60,12 @@ class PPOAlgorithm:
         dones: list[bool],
     ) -> tuple[list[float], list[float]]:
         """Compute GAE advantages and target returns.
-        
+
         Args:
             rewards: Scalar rewards sequence.
             values: State value estimates sequence.
             dones: Episode termination flags sequence.
-            
+
         Returns:
             Tuple of (advantages, returns).
         """
@@ -86,7 +87,7 @@ class PPOAlgorithm:
         entropies: list[float],
     ) -> PPOLossResult:
         """Compute the full set of PPO losses and metrics for a batch.
-        
+
         Args:
             advantages: Computed GAE advantages.
             returns: Computed target returns.
@@ -94,7 +95,7 @@ class PPOAlgorithm:
             log_probs: Current policy log probabilities.
             old_log_probs: Previous policy log probabilities.
             entropies: Policy entropies.
-            
+
         Returns:
             PPOLossResult containing separated components and metrics.
         """
@@ -104,9 +105,9 @@ class PPOAlgorithm:
         )
         value_loss = compute_value_loss(values, returns)
         entropy_loss = compute_entropy_bonus(entropies, self.entropy_coef)
-        
+
         total_loss = policy_loss + (self.value_coef * value_loss) + entropy_loss
-        
+
         # Calculate metrics
         approx_kl = compute_approx_kl(log_probs, old_log_probs)
         clip_frac = compute_clip_fraction(log_probs, old_log_probs, self.epsilon)

@@ -13,7 +13,9 @@ def clip_ratio(log_probs: list[float], old_log_probs: list[float]) -> list[float
     Returns:
         List of ratio scalars: exp(log_prob - old_log_prob).
     """
-    return [math.exp(lp - olp) for lp, olp in zip(log_probs, old_log_probs)]
+    return [
+        math.exp(lp - olp) for lp, olp in zip(log_probs, old_log_probs, strict=False)
+    ]
 
 
 def compute_policy_loss(
@@ -37,14 +39,14 @@ def compute_policy_loss(
         return 0.0
 
     ratios = clip_ratio(log_probs, old_log_probs)
-    
+
     loss_sum = 0.0
-    for ratio, adv in zip(ratios, advantages):
+    for ratio, adv in zip(ratios, advantages, strict=False):
         surr1 = ratio * adv
         # Clip the ratio
         clipped_ratio = max(1.0 - epsilon, min(ratio, 1.0 + epsilon))
         surr2 = clipped_ratio * adv
-        
+
         # We want to maximize min(surr1, surr2), so loss is negative of this
         loss_sum += -min(surr1, surr2)
 
@@ -64,7 +66,7 @@ def compute_value_loss(values: list[float], returns: list[float]) -> float:
     if not values:
         return 0.0
 
-    sq_errors = [(v - r) ** 2 for v, r in zip(values, returns)]
+    sq_errors = [(v - r) ** 2 for v, r in zip(values, returns, strict=False)]
     return sum(sq_errors) / len(values)
 
 
@@ -82,4 +84,6 @@ def compute_entropy_bonus(entropies: list[float], c: float) -> float:
         return 0.0
 
     mean_entropy = sum(entropies) / len(entropies)
-    return - (c * mean_entropy)  # Negative because we want to maximize entropy via minimization
+    return -(
+        c * mean_entropy
+    )  # Negative because we want to maximize entropy via minimization
