@@ -1,5 +1,6 @@
 """Exceptions for the Action Planner module."""
 
+
 class PlannerError(Exception):
     """Base exception for planner errors."""
 

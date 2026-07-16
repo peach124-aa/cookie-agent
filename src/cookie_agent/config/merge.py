@@ -1,23 +1,29 @@
-"""Dictionary deep merging helper."""
+"""Configuration dictionary merge utilities."""
 
-import copy
 from typing import Any
 
 
-def deep_merge(target: dict[str, Any], source: dict[str, Any]) -> dict[str, Any]:
-    """Recursively merge source dictionary into target without mutating inputs.
+def merge_configs(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    """Deterministically merge an override dictionary into a base dictionary.
+
+    Creates a new dictionary without mutating the originals.
+    Nested dictionaries are merged recursively.
+    Lists and primitives in override completely replace those in base.
 
     Args:
-        target: Base dictionary.
-        source: Override dictionary.
+        base: The default base dictionary.
+        override: The dictionary of overrides.
 
     Returns:
-        dict[str, Any]: A newly created merged dictionary.
+        A new merged dictionary.
+
+    Raises:
+        MergeError: If types unexpectedly mismatch during merge.
     """
-    res = copy.deepcopy(target)
-    for key, val in source.items():
-        if isinstance(val, dict) and isinstance(res.get(key), dict):
-            res[key] = deep_merge(res[key], val)
+    merged = dict(base)
+    for key, val in override.items():
+        if key in merged and isinstance(merged[key], dict) and isinstance(val, dict):
+            merged[key] = merge_configs(merged[key], val)
         else:
-            res[key] = copy.deepcopy(val)
-    return res
+            merged[key] = val
+    return merged

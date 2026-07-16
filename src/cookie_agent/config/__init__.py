@@ -1,91 +1,43 @@
-"""Public config models, paths, exceptions, and loading functions."""
+"""Configuration management system."""
 
-from cookie_agent.config.config_name import ConfigName
+from cookie_agent.config.base import BaseConfig
+from cookie_agent.config.capture import CaptureConfig
+from cookie_agent.config.detector import DetectorConfig
+from cookie_agent.config.environment import EnvironmentConfig
 from cookie_agent.config.exceptions import (
     ConfigError,
-    ConfigNotFoundError,
-    ConfigSchemaError,
-    ConfigValidationError,
+    MergeError,
+    SerializationError,
+    ValidationError,
 )
-from cookie_agent.config.loader import (
-    load_app_config,
-    load_capture_config,
-    load_character_config,
-    load_detector_config,
-    load_device_config,
-    load_logging_config,
-    load_planner_config,
-    load_reward_config,
-    load_training_config,
-)
-from cookie_agent.config.models import (
-    AppConfig,
-    CaptureConfig,
-    CharacterConfig,
-    CharacterItemConfig,
-    CooldownRulesConfig,
-    DetectorConfig,
-    DeviceConfig,
-    HoldVarianceConfig,
-    LoggingConfig,
-    LogRotationConfig,
-    MovementConfig,
-    PlannerConfig,
-    ReplayBufferConfig,
-    ResolutionConfig,
-    RetryPolicyConfig,
-    RewardConfig,
-    StrategyConfig,
-    TapVarianceConfig,
-    TimingVarianceConfig,
-    TrainingConfig,
-)
-from cookie_agent.config.paths import (
-    CONFIG_ROOT,
-    DEFAULT_CONFIG_DIR,
-    LOCAL_CONFIG_DIR,
-    config_exists,
-    get_config_file,
-)
+from cookie_agent.config.loader import load_from_dict, load_from_file, load_from_json
+from cookie_agent.config.merge import merge_configs
+from cookie_agent.config.planner import PlannerConfig
+from cookie_agent.config.policy import PolicyConfig
+from cookie_agent.config.ppo import PPOConfig
+from cookie_agent.config.reward import RewardConfig
+from cookie_agent.config.tracker import TrackerConfig
+from cookie_agent.config.training import TrainingConfig
+from cookie_agent.config.version import ConfigurationVersion
 
-__all__: list[str] = [
-    "CONFIG_ROOT",
-    "DEFAULT_CONFIG_DIR",
-    "LOCAL_CONFIG_DIR",
-    "AppConfig",
+__all__ = [
+    "BaseConfig",
     "CaptureConfig",
-    "CharacterConfig",
-    "CharacterItemConfig",
-    "ConfigError",
-    "ConfigName",
-    "ConfigNotFoundError",
-    "ConfigSchemaError",
-    "ConfigValidationError",
-    "CooldownRulesConfig",
     "DetectorConfig",
-    "DeviceConfig",
-    "HoldVarianceConfig",
-    "LogRotationConfig",
-    "LoggingConfig",
-    "MovementConfig",
-    "PlannerConfig",
-    "ReplayBufferConfig",
-    "ResolutionConfig",
-    "RetryPolicyConfig",
+    "TrackerConfig",
+    "EnvironmentConfig",
     "RewardConfig",
-    "StrategyConfig",
-    "TapVarianceConfig",
-    "TimingVarianceConfig",
+    "PlannerConfig",
+    "PolicyConfig",
+    "PPOConfig",
     "TrainingConfig",
-    "config_exists",
-    "get_config_file",
-    "load_app_config",
-    "load_capture_config",
-    "load_character_config",
-    "load_detector_config",
-    "load_device_config",
-    "load_logging_config",
-    "load_planner_config",
-    "load_reward_config",
-    "load_training_config",
+    "ConfigurationVersion",
+    "load_from_dict",
+    "load_from_file",
+    "load_from_json",
+    "merge_configs",
+    "ConfigError",
+    "ValidationError",
+    "MergeError",
+    "SerializationError",
 ]

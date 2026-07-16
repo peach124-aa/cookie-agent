@@ -1,17 +1,25 @@
-"""Custom exceptions for configuration loader."""
+"""Exceptions for the configuration module."""
 
 
 class ConfigError(Exception):
-    """Base exception for all configuration errors."""
+    """Base exception for configuration errors."""
+
+    pass
 
 
-class ConfigNotFoundError(ConfigError):
-    """Raised when a required configuration file cannot be found."""
+class ValidationError(ConfigError):
+    """Raised when configuration values fail validation constraints."""
+
+    pass
 
 
-class ConfigValidationError(ConfigError):
-    """Raised when configuration values violate validation boundaries."""
+class SerializationError(ConfigError):
+    """Raised when configuration fails to serialize or deserialize."""
+
+    pass
 
 
-class ConfigSchemaError(ConfigValidationError):
-    """Raised when schema_version is invalid, missing, or incompatible."""
+class MergeError(ConfigError):
+    """Raised when configuration dictionaries fail to merge."""
+
+    pass

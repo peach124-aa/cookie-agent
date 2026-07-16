@@ -56,25 +56,20 @@ def swipe(
     Returns:
         A sequence of ADB commands mimicking a swipe.
     """
-    # A simple swipe involves a down, a move, and an up. 
-    # For a deterministic baseline, we interpolate a few move points 
+    # A simple swipe involves a down, a move, and an up.
+    # For a deterministic baseline, we interpolate a few move points
     # or just issue one move if the framework handles it.
     # Here we issue a start, move, and end.
-    
+
     # We distribute duration_ms between down and move
     return [
         ADBCommand(
-            kind=InputKind.TOUCH_DOWN, 
-            x=start_x, y=start_y, hold_ms=0, delay_ms=0
+            kind=InputKind.TOUCH_DOWN, x=start_x, y=start_y, hold_ms=0, delay_ms=0
         ),
         ADBCommand(
-            kind=InputKind.TOUCH_MOVE, 
-            x=end_x, y=end_y, hold_ms=duration_ms, delay_ms=0
+            kind=InputKind.TOUCH_MOVE, x=end_x, y=end_y, hold_ms=duration_ms, delay_ms=0
         ),
-        ADBCommand(
-            kind=InputKind.TOUCH_UP, 
-            x=end_x, y=end_y, hold_ms=0, delay_ms=0
-        ),
+        ADBCommand(kind=InputKind.TOUCH_UP, x=end_x, y=end_y, hold_ms=0, delay_ms=0),
     ]
 
 

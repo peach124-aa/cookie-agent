@@ -20,47 +20,47 @@ class CookieActionPlanner:
 
         Returns:
             Touch event sequence lists.
-            
+
         Raises:
             MappingError: If the intent type cannot be handled.
         """
         match intent.intent:
             case IntentType.IDLE | IntentType.NONE:
                 return []
-                
+
             case IntentType.JUMP:
                 return builder.tap(
-                    x=mapping.JUMP_BUTTON_X, 
-                    y=mapping.JUMP_BUTTON_Y, 
-                    hold_ms=50, 
-                    delay_ms=0
+                    x=mapping.JUMP_BUTTON_X,
+                    y=mapping.JUMP_BUTTON_Y,
+                    hold_ms=50,
+                    delay_ms=0,
                 )
-                
+
             case IntentType.DOUBLE_JUMP:
                 # Issue two consecutive taps on the jump button with a small delay
                 seq1 = builder.tap(
-                    x=mapping.JUMP_BUTTON_X, 
-                    y=mapping.JUMP_BUTTON_Y, 
-                    hold_ms=50, 
-                    delay_ms=100
+                    x=mapping.JUMP_BUTTON_X,
+                    y=mapping.JUMP_BUTTON_Y,
+                    hold_ms=50,
+                    delay_ms=100,
                 )
                 seq2 = builder.tap(
-                    x=mapping.JUMP_BUTTON_X, 
-                    y=mapping.JUMP_BUTTON_Y, 
-                    hold_ms=50, 
-                    delay_ms=0
+                    x=mapping.JUMP_BUTTON_X,
+                    y=mapping.JUMP_BUTTON_Y,
+                    hold_ms=50,
+                    delay_ms=0,
                 )
                 return list(seq1) + list(seq2)
-                
+
             case IntentType.SLIDE:
                 # Slide is typically a longer hold
                 return builder.hold(
-                    x=mapping.SLIDE_BUTTON_X, 
-                    y=mapping.SLIDE_BUTTON_Y, 
-                    hold_ms=500, 
-                    delay_ms=0
+                    x=mapping.SLIDE_BUTTON_X,
+                    y=mapping.SLIDE_BUTTON_Y,
+                    hold_ms=500,
+                    delay_ms=0,
                 )
-                
+
             case IntentType.DASH:
                 # Dash might be a quick swipe or another hold depending on character.
                 return builder.swipe(
@@ -70,15 +70,15 @@ class CookieActionPlanner:
                     end_y=mapping.DASH_BUTTON_Y,
                     duration_ms=100,
                 )
-                
+
             case IntentType.RELAY:
                 # Assuming relay isn't explicitly requested in the prompt but exists
                 return builder.tap(
-                    x=mapping.JUMP_BUTTON_X, 
-                    y=mapping.JUMP_BUTTON_Y, 
-                    hold_ms=50, 
-                    delay_ms=0
+                    x=mapping.JUMP_BUTTON_X,
+                    y=mapping.JUMP_BUTTON_Y,
+                    hold_ms=50,
+                    delay_ms=0,
                 )
-                
+
             case _:
                 raise MappingError(f"Unsupported intent mapping: {intent.intent}")
