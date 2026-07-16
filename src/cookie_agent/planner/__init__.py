@@ -6,10 +6,10 @@ from cookie_agent.planner.planner import CookieActionPlanner
 
 __all__ = [
     "CookieActionPlanner",
-    "PlannerError",
     "MappingError",
-    "tap",
-    "swipe",
+    "PlannerError",
     "hold",
     "release",
+    "swipe",
+    "tap",
 ]

@@ -1,13 +1,10 @@
 """Experience and Trajectory containers for RL pipelines."""
 
 from dataclasses import dataclass
-from typing import Generic
-
-from cookie_agent.rl.types import ActionType, InfoType, StateType
 
 
 @dataclass(frozen=True, slots=True)
-class Experience(Generic[StateType, ActionType, InfoType]):
+class Experience[StateType, ActionType, InfoType]:
     """An immutable, generic record of a single step transition.
 
     Attributes:
@@ -27,7 +24,7 @@ class Experience(Generic[StateType, ActionType, InfoType]):
     info: InfoType
 
 
-class Trajectory(Generic[StateType, ActionType, InfoType]):
+class Trajectory[StateType, ActionType, InfoType]:
     """A contiguous sequence of experiences representing a single episode."""
 
     def __init__(

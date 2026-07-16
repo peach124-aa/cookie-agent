@@ -1,7 +1,7 @@
 """Unit tests for the Cookie Environment orchestration module."""
 
 from collections.abc import Sequence
-from typing import cast
+from typing import Any, cast
 
 import pytest
 from cookie_agent.core.actions import ActionIntent, ADBCommand, IntentType
@@ -11,11 +11,14 @@ from cookie_agent.core.reward import RewardEvent
 from cookie_agent.core.state import GameState, JumpPhase, PlayerState
 from cookie_agent.core.tracking import TrackedObject, TrackStatus
 from cookie_agent.core.types import Confidence, FrameId, StepId, Timestamp, TrackId
-from cookie_agent.environment import CookieEnvironment, EnvironmentError
+from cookie_agent.environment import AgentEnvironmentError, CookieEnvironment
 
 
 class MockCaptureSource:
+    """Mock capture source for testing."""
+
     def __init__(self, frame: Frame | None = None) -> None:
+        """Initialize mock capture source."""
         self._frame: Frame | None = frame or Frame(
             frame_id=cast(FrameId, 1),
             timestamp=cast(Timestamp, 0.0),
@@ -26,14 +29,19 @@ class MockCaptureSource:
         self.closed = False
 
     def capture(self) -> Frame | None:
+        """Mock capture."""
         return self._frame
 
     def close(self) -> None:
+        """Mock close."""
         self.closed = True
 
 
 class MockDetector:
-    def detect(self, frame: Frame) -> list[Detection]:
+    """Mock detector for testing."""
+
+    def detect(self, _frame: Frame) -> list[Detection]:
+        """Mock detect."""
         return [
             Detection(
                 frame_id=cast(FrameId, 1),
@@ -45,11 +53,15 @@ class MockDetector:
         ]
 
     def close(self) -> None:
+        """Mock close."""
         pass
 
 
 class MockTracker:
-    def track(self, detections: Sequence[Detection]) -> list[TrackedObject]:
+    """Mock tracker for testing."""
+
+    def track(self, _detections: Sequence[Detection]) -> list[TrackedObject]:
+        """Mock track."""
         return [
             TrackedObject(
                 cast(TrackId, 1),
@@ -63,7 +75,10 @@ class MockTracker:
 
 
 class MockStateBuilder:
-    def build(self, *args, **kwargs) -> GameState:  # type: ignore
+    """Mock state builder for testing."""
+
+    def build(self, *_args: Any, **_kwargs: Any) -> GameState:
+        """Mock build."""
         return GameState(
             schema_version=1,
             player=PlayerState(
@@ -77,32 +92,44 @@ class MockStateBuilder:
 
 
 class MockRewardStrategy:
+    """Mock reward strategy for testing."""
+
     def calculate(
-        self, previous_state: GameState, current_state: GameState
+        self, _previous_state: GameState, _current_state: GameState
     ) -> RewardEvent:
+        """Mock calculate."""
         return RewardEvent(1.0, "MOCK_REWARD")
 
 
 class MockDeviceController:
+    """Mock device controller for testing."""
+
     def __init__(self) -> None:
+        """Initialize mock device controller."""
         self.executed_commands: list[Sequence[ADBCommand]] = []
         self.disconnected = False
 
     def execute(self, commands: Sequence[ADBCommand]) -> bool:
+        """Mock execute."""
         self.executed_commands.append(commands)
         return True
 
     def disconnect(self) -> None:
+        """Mock disconnect."""
         self.disconnected = True
 
 
 class MockActionPlanner:
-    def plan(self, intent: ActionIntent, state: GameState) -> list[ADBCommand]:
+    """Mock action planner for testing."""
+
+    def plan(self, _intent: ActionIntent, _state: GameState) -> list[ADBCommand]:
+        """Mock plan."""
         return []
 
 
 @pytest.fixture()
 def environment() -> CookieEnvironment:
+    """Provide a CookieEnvironment for testing."""
     return CookieEnvironment(
         capture_source=MockCaptureSource(),
         detector=MockDetector(),
@@ -122,8 +149,8 @@ def test_reset(environment: CookieEnvironment) -> None:
 
 
 def test_step_without_reset(environment: CookieEnvironment) -> None:
-    """Verify stepping before resetting raises EnvironmentError."""
-    with pytest.raises(EnvironmentError):
+    """Verify stepping before resetting raises AgentEnvironmentError."""
+    with pytest.raises(AgentEnvironmentError):
         environment.step(ActionIntent(IntentType.NONE))
 
 
@@ -157,5 +184,5 @@ def test_capture_failure(environment: CookieEnvironment) -> None:
     """Verify missing frame returns error."""
     cast(MockCaptureSource, environment._capture_source)._frame = None
 
-    with pytest.raises(EnvironmentError, match="Failed to capture initial frame"):
+    with pytest.raises(AgentEnvironmentError, match="Failed to capture initial frame"):
         environment.reset()

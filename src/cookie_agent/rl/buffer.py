@@ -1,13 +1,11 @@
 """Rollout buffer for collecting RL trajectories."""
 
 from collections.abc import Iterator
-from typing import Generic
 
 from cookie_agent.rl.experience import Experience, Trajectory
-from cookie_agent.rl.types import ActionType, InfoType, StateType
 
 
-class RolloutBuffer(Generic[StateType, ActionType, InfoType]):
+class RolloutBuffer[StateType, ActionType, InfoType]:
     """Stores sequential experiences and splits them into distinct trajectories."""
 
     def __init__(self) -> None:

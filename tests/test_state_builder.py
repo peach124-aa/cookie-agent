@@ -33,7 +33,7 @@ def test_builder_initial_state() -> None:
         tracked_objects=[cookie],
         ocr_results={"health": 100.0},
         character_status={"relay_available": True},
-        map_hint=None,
+        _map_hint=None,
         previous_state=None,
     )
 
@@ -158,7 +158,8 @@ def test_builder_character_status_override() -> None:
         TrackStatus.ACTIVE,
     )
 
-    # Even though velocity is 0 (normally GROUNDED), we force FALLING via character_status
+    # Even though velocity is 0 (normally GROUNDED),
+    # we force FALLING via character_status
     state = builder.build(
         [cookie], {}, {"jump_phase": "FALLING", "airborne": True, "grounded": False}
     )

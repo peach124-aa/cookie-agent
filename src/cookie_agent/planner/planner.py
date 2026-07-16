@@ -9,9 +9,12 @@ from cookie_agent.planner.exceptions import MappingError
 
 
 class CookieActionPlanner:
-    """Stateless translator mapping abstract intents into deterministic device commands."""
+    """Stateless translator mapping abstract intents to device commands.
 
-    def plan(self, intent: ActionIntent, state: GameState) -> Sequence[ADBCommand]:
+    This translates high level intents into deterministic hardware signals.
+    """
+
+    def plan(self, intent: ActionIntent, _state: GameState) -> Sequence[ADBCommand]:
         """Translates abstract actions to hardware commands.
 
         Args:

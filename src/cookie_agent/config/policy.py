@@ -1,8 +1,10 @@
 """Policy configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
 from cookie_agent.config.validator import validate_non_empty
+
 
 @dataclass(frozen=True, slots=True)
 class PolicyConfig(BaseConfig):
@@ -17,7 +19,5 @@ class PolicyConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "PolicyConfig":
-        return cls(
-            active_policy="rule",
-            rule_jump_threshold_x=20.0
-        )
+        """Return default configuration."""
+        return cls(active_policy="rule", rule_jump_threshold_x=20.0)

@@ -14,14 +14,15 @@ from cookie_agent.core.protocols import (
 )
 from cookie_agent.core.reward import RewardEvent
 from cookie_agent.core.state import GameState
-from cookie_agent.environment.exceptions import EnvironmentError
+from cookie_agent.environment.exceptions import AgentEnvironmentError
 from cookie_agent.environment.info import StepInfo
 
 
 class CookieEnvironment:
     """Central orchestrator for the Cookie Run agent pipeline.
 
-    Connects capture, detection, tracking, state building, rewarding, and hardware control.
+    Connects capture, detection, tracking, state building, rewarding, and
+    hardware control.
     """
 
     def __init__(
@@ -62,8 +63,8 @@ class CookieEnvironment:
             The initial GameState.
         """
         frame = self._capture_source.capture()
-        if frame is None:
-            raise EnvironmentError("Failed to capture initial frame.")
+        if not frame:
+            raise AgentEnvironmentError("Failed to capture initial frame.")
 
         detections = self._detector.detect(frame)
         tracked_objects = self._tracker.track(detections)
@@ -93,7 +94,7 @@ class CookieEnvironment:
             A tuple of (GameState, RewardEvent, terminated, StepInfo).
         """
         if self._previous_state is None:
-            raise EnvironmentError("Cannot step before reset is called.")
+            raise AgentEnvironmentError("Cannot step before reset is called.")
 
         # 1. Plan and execute action
         commands = self._action_planner.plan(action, self._previous_state)
@@ -101,8 +102,8 @@ class CookieEnvironment:
 
         # 2. Capture frame
         frame = self._capture_source.capture()
-        if frame is None:
-            raise EnvironmentError("Failed to capture frame during step.")
+        if not frame:
+            raise AgentEnvironmentError("Failed to capture frame during step.")
 
         # 3 & 4. Detect and Track
         detections = self._detector.detect(frame)

@@ -92,7 +92,7 @@ def greedy_assignment(
     assigned_detections: set[int] = set()
     assigned_tracks: set[int] = set()
 
-    for cost, d_idx, t_idx in costs:
+    for _cost, d_idx, t_idx in costs:
         if d_idx not in assigned_detections and t_idx not in assigned_tracks:
             matched_indices.append((d_idx, t_idx))
             assigned_detections.add(d_idx)

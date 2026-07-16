@@ -31,7 +31,7 @@ class DefaultStateBuilder(StateBuilder):
         tracked_objects: Sequence[TrackedObject],
         ocr_results: dict[str, float | str],
         character_status: dict[str, bool | float | str],
-        map_hint: MapHint | None = None,
+        _map_hint: MapHint | None = None,
         previous_state: GameState | None = None,
     ) -> GameState:
         """Compose the unified state representation."""
@@ -71,8 +71,9 @@ class DefaultStateBuilder(StateBuilder):
                     JumpPhase.FALLING,
                     JumpPhase.FIRST_JUMP,
                 ):
-                    # If we were falling or already jumping and are now moving up significantly,
-                    # we can assume a second jump (or double jump) was triggered.
+                    # If we were falling or already jumping and are now
+                    # moving up significantly, we can assume a second jump
+                    # (or double jump) was triggered.
                     if (
                         cookie_vel_y < -50.0
                         and previous_state.player.time_since_last_jump > 0.0
@@ -141,7 +142,8 @@ class DefaultStateBuilder(StateBuilder):
         ]
 
         if static_objs:
-            # Static objects move left on screen, so velocity_x is negative. Speed is magnitude.
+            # Static objects move left on screen, so velocity_x is negative.
+            # Speed is magnitude.
             avg_vx = sum(obj.velocity_x for obj in static_objs) / len(static_objs)
             scroll_speed = float(-avg_vx)
         elif previous_state:

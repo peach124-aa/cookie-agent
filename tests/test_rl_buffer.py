@@ -2,7 +2,7 @@
 
 import pytest
 from cookie_agent.rl.buffer import RolloutBuffer
-from cookie_agent.rl.exceptions import BufferError
+from cookie_agent.rl.exceptions import ReplayBufferError
 from cookie_agent.rl.experience import Experience, Trajectory
 from cookie_agent.rl.sampler import MiniBatchSampler
 
@@ -23,7 +23,7 @@ def test_experience_immutability() -> None:
     """Verify Experience dataclass is frozen."""
     exp = create_exp(1.0)
     with pytest.raises(
-        Exception
+        AttributeError
     ):  # FrozenInstanceError inherits from AttributeError/Exception
         exp.reward = 2.0  # type: ignore
 
@@ -112,7 +112,7 @@ def test_minibatch_sampler_empty() -> None:
 
 
 def test_minibatch_sampler_invalid_batch_size() -> None:
-    """Verify sampler raises BufferError for invalid sizes."""
+    """Verify sampler raises ReplayBufferError for invalid sizes."""
     buffer = RolloutBuffer[str, str, str]()
-    with pytest.raises(BufferError):
+    with pytest.raises(ReplayBufferError):
         MiniBatchSampler(buffer, batch_size=0)

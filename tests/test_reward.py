@@ -16,6 +16,7 @@ class DistanceRule:
     def evaluate(
         self, previous_state: GameState, current_state: GameState
     ) -> RewardEvent | None:
+        """Mock evaluate."""
         delta = current_state.scroll_distance - previous_state.scroll_distance
         if delta > 0:
             return RewardEvent(value=delta * 0.1, event_type="DISTANCE")
@@ -28,6 +29,7 @@ class DamageRule:
     def evaluate(
         self, previous_state: GameState, current_state: GameState
     ) -> RewardEvent | None:
+        """Mock evaluate."""
         if (
             current_state.player.time_since_last_damage == 0.0
             and previous_state.player.time_since_last_damage > 0

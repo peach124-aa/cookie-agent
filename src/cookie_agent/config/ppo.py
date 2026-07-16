@@ -1,8 +1,10 @@
 """PPO algorithm configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
 from cookie_agent.config.validator import validate_positive, validate_range
+
 
 @dataclass(frozen=True, slots=True)
 class PPOConfig(BaseConfig):
@@ -24,10 +26,11 @@ class PPOConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "PPOConfig":
+        """Return default configuration."""
         return cls(
             gamma=0.99,
             lambda_gae=0.95,
             clip_ratio=0.2,
             value_coeff=0.5,
-            entropy_coeff=0.01
+            entropy_coeff=0.01,
         )

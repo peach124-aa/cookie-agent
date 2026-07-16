@@ -9,7 +9,7 @@ from cookie_agent.config.exceptions import ConfigError
 T = TypeVar("T", bound=BaseConfig)
 
 
-def load_from_dict(cls: type[T], data: dict[str, Any]) -> T:
+def load_from_dict[T: BaseConfig](cls: type[T], data: dict[str, Any]) -> T:
     """Load configuration from a raw dictionary."""
     try:
         return cls.from_dict(data)
@@ -17,7 +17,7 @@ def load_from_dict(cls: type[T], data: dict[str, Any]) -> T:
         raise ConfigError(f"Failed to load {cls.__name__} from dictionary: {e}") from e
 
 
-def load_from_json(cls: type[T], json_str: str) -> T:
+def load_from_json[T: BaseConfig](cls: type[T], json_str: str) -> T:
     """Load configuration from a raw JSON string."""
     try:
         return cls.from_json(json_str)
@@ -25,7 +25,7 @@ def load_from_json(cls: type[T], json_str: str) -> T:
         raise ConfigError(f"Failed to load {cls.__name__} from JSON string: {e}") from e
 
 
-def load_from_file(cls: type[T], file_path: str | Path) -> T:
+def load_from_file[T: BaseConfig](cls: type[T], file_path: str | Path) -> T:
     """Load configuration from a JSON file."""
     path = Path(file_path)
     if not path.is_file():

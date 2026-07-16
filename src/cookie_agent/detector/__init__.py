@@ -16,14 +16,14 @@ from cookie_agent.detector.preprocess import preprocess_frame
 from cookie_agent.detector.types import Detection
 
 __all__: list[str] = [
-    "Predictor",
-    "InferenceModel",
     "Detection",
     "DetectorError",
-    "ModelLoadError",
     "InferenceError",
-    "preprocess_frame",
-    "postprocess_predictions",
+    "InferenceModel",
+    "ModelLoadError",
+    "Predictor",
     "non_max_suppression",
+    "postprocess_predictions",
+    "preprocess_frame",
     "restore_coordinates",
 ]

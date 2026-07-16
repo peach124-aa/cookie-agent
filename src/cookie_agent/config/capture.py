@@ -1,8 +1,10 @@
 """Capture system configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
-from cookie_agent.config.validator import validate_positive, validate_non_empty
+from cookie_agent.config.validator import validate_non_empty, validate_positive
+
 
 @dataclass(frozen=True, slots=True)
 class CaptureConfig(BaseConfig):
@@ -20,8 +22,5 @@ class CaptureConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "CaptureConfig":
-        return cls(
-            backend="windows",
-            target_fps=60,
-            queue_size=5
-        )
+        """Return default configuration."""
+        return cls(backend="windows", target_fps=60, queue_size=5)

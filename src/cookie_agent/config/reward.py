@@ -1,8 +1,10 @@
 """Reward configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
 from cookie_agent.config.validator import validate_non_empty
+
 
 @dataclass(frozen=True, slots=True)
 class RewardConfig(BaseConfig):
@@ -19,9 +21,10 @@ class RewardConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "RewardConfig":
+        """Return default configuration."""
         return cls(
             strategy="survival",
             survival_points_per_frame=0.1,
             jelly_points=1.0,
-            obstacle_penalty=-10.0
+            obstacle_penalty=-10.0,
         )

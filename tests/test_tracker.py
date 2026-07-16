@@ -221,7 +221,8 @@ def test_object_tracker_logic() -> None:
     assert tracks_f3[0].status == TrackStatus.OCCLUDED
     assert tracks_f3[1].status == TrackStatus.OCCLUDED
 
-    # Frame 4: Empty (Jelly should be lost since it was occluded for F2, F3, F4? Wait: F2=count 1, F3=count 2, F4=count 3 > 2 => LOST)
+    # Frame 4: Empty (Jelly should be lost since it was occluded for F2, F3, F4?
+    # Wait: F2=count 1, F3=count 2, F4=count 3 > 2 => LOST)
     tracks_f4 = tracker.track([])
     assert len(tracks_f4) == 1
     assert tracks_f4[0].class_name == DetectionClass.COOKIE

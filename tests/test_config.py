@@ -47,7 +47,7 @@ def test_detector_config() -> None:
     assert c.confidence_threshold == 0.5
 
     with pytest.raises(
-        ValidationError, match="iou_threshold must be between 0.0 and 1.0"
+        ValidationError, match=r"iou_threshold must be between 0.0 and 1.0"
     ):
         DetectorConfig(
             detector_type="test",
@@ -93,7 +93,7 @@ def test_policy_config() -> None:
 
 def test_ppo_config() -> None:
     """Verify PPOConfig validation."""
-    with pytest.raises(ValidationError, match="gamma must be between 0.0 and 1.0"):
+    with pytest.raises(ValidationError, match=r"gamma must be between 0.0 and 1.0"):
         PPOConfig(
             gamma=2.0,
             lambda_gae=0.9,
@@ -147,10 +147,13 @@ def test_merge_configs() -> None:
 
 @dataclass(frozen=True)
 class NestedConfig(BaseConfig):
+    """Mock nested config for testing."""
+
     capture: CaptureConfig
 
     @classmethod
     def default(cls) -> "NestedConfig":
+        """Return default."""
         return cls(capture=CaptureConfig.default())
 
 

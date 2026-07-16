@@ -1,8 +1,10 @@
 """Environment orchestration configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
 from cookie_agent.config.validator import validate_positive
+
 
 @dataclass(frozen=True, slots=True)
 class EnvironmentConfig(BaseConfig):
@@ -18,7 +20,5 @@ class EnvironmentConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "EnvironmentConfig":
-        return cls(
-            max_steps_per_episode=10000,
-            fps_sync=60
-        )
+        """Return default configuration."""
+        return cls(max_steps_per_episode=10000, fps_sync=60)

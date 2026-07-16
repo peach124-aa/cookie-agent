@@ -62,11 +62,15 @@ def test_rule_policy_determinstic() -> None:
 
 
 class MockPPOAgent:
+    """Mock PPO agent for testing."""
+
     def __init__(self, action: ActionIntent, fail: bool = False) -> None:
+        """Initialize mock PPO agent."""
         self._action = action
         self._fail = fail
 
-    def predict(self, state: GameState) -> ActionIntent:
+    def predict(self, _state: GameState) -> ActionIntent:
+        """Mock predict."""
         if self._fail:
             raise ValueError("Network error")
         return self._action
@@ -102,7 +106,8 @@ def test_policy_selector() -> None:
     }
 
     selector = PolicySelector(policies=registry, default_policy="rule")  # type: ignore[arg-type]
-    # ignoring type check on dict instantiation because PolicySelector takes Mapping/dict of PolicyProtocol
+    # ignoring type check on dict instantiation because PolicySelector takes
+    # Mapping/dict of PolicyProtocol
 
     state = create_mock_state(
         grounded=True, obj_xmin=50

@@ -11,6 +11,7 @@ class PolicyProtocol(Protocol):
     """Local representation of the Policy protocol to avoid cyclic deps if necessary."""
 
     def select_action(self, state: GameState) -> ActionIntent:
+        """Select action based on current state."""
         ...
 
 

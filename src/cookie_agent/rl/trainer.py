@@ -1,7 +1,6 @@
 """PPO Training Loop Orchestrator."""
 
 from collections.abc import Sequence
-from typing import Generic
 
 from cookie_agent.rl.buffer import RolloutBuffer
 from cookie_agent.rl.ppo import PPOAlgorithm
@@ -14,10 +13,9 @@ from cookie_agent.rl.protocols import (
 )
 from cookie_agent.rl.sampler import MiniBatchSampler
 from cookie_agent.rl.trainer_metrics import EpochMetrics, TrainMetrics
-from cookie_agent.rl.types import ActionType, InfoType, StateType
 
 
-class PPOTrainer(Generic[StateType, ActionType, InfoType]):
+class PPOTrainer[StateType, ActionType, InfoType]:
     """Pure Python orchestrator for Proximal Policy Optimization loops.
 
     Coordinates the generic mathematical RL routines with strict abstract
@@ -133,8 +131,9 @@ class PPOTrainer(Generic[StateType, ActionType, InfoType]):
         batches_processed = 0
 
         # We must align the pre-computed advantages/returns to the sampled batches.
-        # Since MiniBatchSampler currently yields chunks sequentially and deterministically
-        # without shuffling, we can safely slice the advantages array based on batch indexing.
+        # Since MiniBatchSampler currently yields chunks sequentially and
+        # deterministically without shuffling, we can safely slice the advantages
+        # array based on batch indexing.
         cursor = 0
 
         for batch_idx, batch in enumerate(sampler):

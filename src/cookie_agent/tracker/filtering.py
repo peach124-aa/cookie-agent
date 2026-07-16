@@ -10,7 +10,8 @@ class LifecycleManager:
         """Initialize the LifecycleManager.
 
         Args:
-            max_occluded_frames: Number of frames an object can remain OCCLUDED before being marked LOST.
+            max_occluded_frames: Number of frames an object can remain
+                                 OCCLUDED before being marked LOST.
         """
         self.max_occluded_frames = max_occluded_frames
         self.occluded_counts: dict[int, int] = {}

@@ -1,8 +1,10 @@
 """Training orchestration configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
-from cookie_agent.config.validator import validate_positive, validate_non_empty
+from cookie_agent.config.validator import validate_non_empty, validate_positive
+
 
 @dataclass(frozen=True, slots=True)
 class TrainingConfig(BaseConfig):
@@ -22,9 +24,10 @@ class TrainingConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "TrainingConfig":
+        """Return default configuration."""
         return cls(
             batch_size=64,
             learning_rate=3e-4,
             num_epochs=10,
-            checkpoint_dir="checkpoints/"
+            checkpoint_dir="checkpoints/",
         )

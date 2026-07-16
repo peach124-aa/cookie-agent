@@ -84,10 +84,10 @@ def restore_coordinates(
     scale_x = orig_w / targ_w
     scale_y = orig_h / targ_h
 
-    xmin = int(round(bbox.xmin * scale_x))
-    ymin = int(round(bbox.ymin * scale_y))
-    xmax = int(round(bbox.xmax * scale_x))
-    ymax = int(round(bbox.ymax * scale_y))
+    xmin = round(bbox.xmin * scale_x)
+    ymin = round(bbox.ymin * scale_y)
+    xmax = round(bbox.xmax * scale_x)
+    ymax = round(bbox.ymax * scale_y)
 
     return BBox(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax)
 

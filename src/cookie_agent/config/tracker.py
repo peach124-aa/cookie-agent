@@ -1,8 +1,10 @@
 """Tracker configuration."""
 
 from dataclasses import dataclass
+
 from cookie_agent.config.base import BaseConfig
 from cookie_agent.config.validator import validate_positive
+
 
 @dataclass(frozen=True, slots=True)
 class TrackerConfig(BaseConfig):
@@ -20,8 +22,5 @@ class TrackerConfig(BaseConfig):
 
     @classmethod
     def default(cls) -> "TrackerConfig":
-        return cls(
-            max_age=15,
-            min_hits=3,
-            distance_threshold=50.0
-        )
+        """Return default configuration."""
+        return cls(max_age=15, min_hits=3, distance_threshold=50.0)

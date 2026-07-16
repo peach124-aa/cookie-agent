@@ -71,7 +71,8 @@ def test_compute_policy_loss() -> None:
 
     # For adv=-1.0:
     # surr1 = 2.0 * -1.0 = -2.0
-    # surr2 = max(0.8, min(2.0, 1.2)) * -1.0 = 1.2 * -1.0 = -1.2 (Wait, clip(ratio, 0.8, 1.2) = 1.2 -> 1.2 * -1 = -1.2)
+    # surr2 = max(0.8, min(2.0, 1.2)) * -1.0 = 1.2 * -1.0 = -1.2
+    # (Wait, clip(ratio, 0.8, 1.2) = 1.2 -> 1.2 * -1 = -1.2)
     # Actually, ratio=2.0 is clipped to 1.2.
     # surr2 = 1.2 * -1.0 = -1.2
     # min(-2.0, -1.2) = -2.0

@@ -6,9 +6,9 @@ from cookie_agent.policy.rule_policy import RulePolicy
 from cookie_agent.policy.selector import PolicySelector
 
 __all__ = [
-    "PolicyError",
-    "RulePolicy",
-    "PPOPolicy",
     "PPOAgentProtocol",
+    "PPOPolicy",
+    "PolicyError",
     "PolicySelector",
+    "RulePolicy",
 ]

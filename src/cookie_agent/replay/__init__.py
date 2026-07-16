@@ -15,13 +15,13 @@ from cookie_agent.replay.recorder import ReplayRecorder
 from cookie_agent.replay.writer import ReplayWriter
 
 __all__: list[str] = [
-    "ReplaySessionMetadata",
+    "ReplayError",
+    "ReplayFormatError",
     "ReplayFrameMetadata",
-    "ReplayWriter",
+    "ReplayReadError",
     "ReplayReader",
     "ReplayRecorder",
-    "ReplayError",
+    "ReplaySessionMetadata",
     "ReplayWriteError",
-    "ReplayReadError",
-    "ReplayFormatError",
+    "ReplayWriter",
 ]
