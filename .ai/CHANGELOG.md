@@ -50,3 +50,14 @@ All reviewed and approved milestone commits for this repository are logged here.
   - **Environment Variables Overrides**: Supports missing intermediate path constructions (nested dictionaries), casting case-insensitive boolean states (`true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`), and raising validation failures on malformed fields.
   - **Unknown Key Validation**: Added recursive check raising errors on foreign fields in loaded YAML sources.
   - **Lightweight Dry Loading**: Cleaned up duplicated file parse checks and removed caching to remain stateless.
+
+---
+
+## Commit 0006
+- **Title**: Capture Module
+- **Status**: Approved
+- **Description**: Implemented the low-latency graphical frame buffer capture module:
+  - **Base Capture Source Interface**: Created an abstract class conforming to the runtime checkable `CaptureSource` protocol.
+  - **WindowsCapture**: Implemented GDI-based screen capture retrieving raw emulator graphics buffers in BGRA format directly without color conversion or external package dependencies (such as numpy, OpenCV, or torch).
+  - **Bounded FrameBuffer**: Implemented a thread-safe FIFO queue dropping the oldest frame on capacity overflow.
+  - **Unit Testing**: 100% test coverage using platform-independent mock layers for Windows GDI and handle APIs.
