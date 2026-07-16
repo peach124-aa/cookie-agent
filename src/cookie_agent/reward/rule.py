@@ -10,7 +10,9 @@ from cookie_agent.core.state import GameState
 class RewardRule(Protocol):
     """Contract for individual reward evaluation rules."""
 
-    def evaluate(self, previous_state: GameState, current_state: GameState) -> RewardEvent | None:
+    def evaluate(
+        self, previous_state: GameState, current_state: GameState
+    ) -> RewardEvent | None:
         """Evaluate a state transition and emit a reward event if applicable.
 
         Args:
