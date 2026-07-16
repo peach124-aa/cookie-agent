@@ -4,6 +4,18 @@ All reviewed and approved milestone commits for this repository are logged here.
 
 ---
 
+## Commit 0017
+- **Title**: Policy Module
+- **Status**: Ready
+- **Description**: Implemented the decision-making Policy boundary layer.
+  - **RulePolicy**: Designed a deterministic, stateless heuristic baseline policy that evaluates `GameState` properties.
+  - **PPOPolicy**: Created an adapter implementing the `Policy` protocol while delegating inferences to an injected generic `PPOAgentProtocol`, guaranteeing complete decoupling from ML environments (Torch/NumPy).
+  - **PolicySelector**: Constructed a dependency-injection based dynamic router to seamlessly swap active policies without singletons.
+  - **Dependencies**: Fully adheres to architectural isolation. Consumes `GameState` to produce `ActionIntent` without any reverse dependencies on Execution (Device, Capture, Planner).
+  - **Tests**: Verified protocol conformance, heuristic logic trees, exception handling wrapper behavior, and DI stability.
+
+---
+
 ## Commit 0016
 - **Title**: PPO Trainer
 - **Status**: Ready

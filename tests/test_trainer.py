@@ -1,17 +1,10 @@
 """Unit tests for the generic PPO Trainer."""
 
-from collections.abc import Sequence
 from typing import Any
 
 from cookie_agent.rl.buffer import RolloutBuffer
 from cookie_agent.rl.experience import Experience
 from cookie_agent.rl.ppo import PPOAlgorithm, PPOLossResult
-from cookie_agent.rl.protocols import (
-    AgentProtocol,
-    CallbackProtocol,
-    OptimizerProtocol,
-    SchedulerProtocol,
-)
 from cookie_agent.rl.trainer import PPOTrainer
 
 

@@ -16,10 +16,10 @@ class AgentProtocol(Protocol[StateType, ActionType, InfoType]):
         batch: list[Experience[StateType, ActionType, InfoType]],
     ) -> tuple[list[float], list[float], list[float]]:
         """Evaluate the current policy and value function on a batch of experiences.
-        
+
         Args:
             batch: A sequence of experiences.
-            
+
         Returns:
             A tuple containing three equal-length lists:
             - values: The estimated state values.
@@ -30,7 +30,7 @@ class AgentProtocol(Protocol[StateType, ActionType, InfoType]):
 
     def backward(self, loss_result: PPOLossResult) -> None:
         """Execute the backward pass and gradient computation based on loss scalars.
-        
+
         Args:
             loss_result: The pure Python loss scalars computed by PPOAlgorithm.
         """
@@ -60,7 +60,7 @@ class SchedulerProtocol(Protocol):
 
     def get_last_lr(self) -> list[float]:
         """Return the last computed learning rate(s).
-        
+
         Returns:
             A list of learning rates for the parameter groups.
         """
@@ -73,7 +73,7 @@ class CheckpointProtocol(Protocol):
 
     def save(self, filepath: str) -> None:
         """Serialize the agent and optimizer state to disk.
-        
+
         Args:
             filepath: Destination path for the checkpoint.
         """
