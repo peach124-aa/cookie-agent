@@ -73,7 +73,10 @@ class DefaultStateBuilder(StateBuilder):
                 ):
                     # If we were falling or already jumping and are now moving up significantly,
                     # we can assume a second jump (or double jump) was triggered.
-                    if cookie_vel_y < -50.0 and previous_state.player.time_since_last_jump > 0.0:
+                    if (
+                        cookie_vel_y < -50.0
+                        and previous_state.player.time_since_last_jump > 0.0
+                    ):
                         jump_phase = JumpPhase.SECOND_JUMP
                     else:
                         # Retain previous phase if velocity hasn't changed drastically
@@ -82,7 +85,9 @@ class DefaultStateBuilder(StateBuilder):
         # 4. Timers
         time_since_last_jump = 0.0
         if previous_state:
-            time_since_last_jump = previous_state.player.time_since_last_jump + self.fixed_dt
+            time_since_last_jump = (
+                previous_state.player.time_since_last_jump + self.fixed_dt
+            )
             # Reset if transitioning from grounded to jump, or first to second
             if (
                 previous_state.player.jump_phase == JumpPhase.GROUNDED
@@ -95,14 +100,16 @@ class DefaultStateBuilder(StateBuilder):
 
         time_since_last_damage = 0.0
         if previous_state:
-            time_since_last_damage = previous_state.player.time_since_last_damage + self.fixed_dt
+            time_since_last_damage = (
+                previous_state.player.time_since_last_damage + self.fixed_dt
+            )
 
         # Check for damage from OCR
         health = float(ocr_results.get("health", -1.0))
         if character_status.get("damage_taken", False):
             time_since_last_damage = 0.0
         elif previous_state and health >= 0:
-            pass # Further health logic could go here
+            pass  # Further health logic could go here
 
         relay_avail = bool(character_status.get("relay_available", False))
 
@@ -115,7 +122,9 @@ class DefaultStateBuilder(StateBuilder):
             time_since_last_jump=time_since_last_jump,
             time_since_last_damage=time_since_last_damage,
             relay_available=relay_avail,
-            buffs={k[5:]: v for k, v in character_status.items() if k.startswith("buff_")},
+            buffs={
+                k[5:]: v for k, v in character_status.items() if k.startswith("buff_")
+            },
         )
 
         # 5. Scroll Speed and Distance
@@ -127,7 +136,9 @@ class DefaultStateBuilder(StateBuilder):
             DetectionClass.POTION,
             DetectionClass.COIN,
         }
-        static_objs = [obj for obj in tracked_objects if obj.class_name in static_classes]
+        static_objs = [
+            obj for obj in tracked_objects if obj.class_name in static_classes
+        ]
 
         if static_objs:
             # Static objects move left on screen, so velocity_x is negative. Speed is magnitude.
@@ -143,7 +154,9 @@ class DefaultStateBuilder(StateBuilder):
 
         scroll_distance = 0.0
         if previous_state:
-            scroll_distance = previous_state.scroll_distance + scroll_speed * self.fixed_dt
+            scroll_distance = (
+                previous_state.scroll_distance + scroll_speed * self.fixed_dt
+            )
 
         step_id = 1
         if previous_state and previous_state.step_id is not None:

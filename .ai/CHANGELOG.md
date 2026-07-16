@@ -4,6 +4,18 @@ All reviewed and approved milestone commits for this repository are logged here.
 
 ---
 
+## Commit 0012
+- **Title**: Reward Engine
+- **Status**: Ready
+- **Description**: Implemented the Reward Engine Module in pure Python:
+  - **RewardEngine**: Conforms to the `RewardStrategy` Protocol.
+  - **RewardRule**: Extensible rule protocol allowing decoupled injection of domain-specific logic.
+  - **Event Aggregation**: Evaluates state transitions across all registered rules and deterministically combines emitted `RewardEvent` objects.
+  - **Dependencies**: No game logic, no RL environment logic, and zero external numerical dependencies.
+  - **Tests**: Exhaustive test coverage (over 92% project-wide) for positive, negative, and aggregation reward logic.
+
+---
+
 ## Commit 0011
 - **Title**: State Builder
 - **Status**: Ready

@@ -2,13 +2,12 @@
 
 from typing import cast
 
-import pytest
 from cookie_agent.core.detection import BBox, DetectionClass
 from cookie_agent.core.protocols import StateBuilder
 from cookie_agent.core.state import GameState, JumpPhase, PlayerState
 from cookie_agent.core.tracking import TrackedObject, TrackStatus
 from cookie_agent.core.types import StepId, TrackId
-from cookie_agent.state_builder import DefaultStateBuilder, StateBuilderError
+from cookie_agent.state_builder import DefaultStateBuilder
 
 
 def test_builder_protocol_conformance() -> None:
@@ -83,30 +82,65 @@ def test_builder_jump_transitions() -> None:
     builder = DefaultStateBuilder(fixed_dt=0.1)
 
     # State 1: Grounded
-    cookie_ground = TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, 0.0, TrackStatus.ACTIVE)
+    cookie_ground = TrackedObject(
+        cast(TrackId, 1),
+        DetectionClass.COOKIE,
+        BBox(0, 0, 10, 10),
+        0.0,
+        0.0,
+        TrackStatus.ACTIVE,
+    )
     state1 = builder.build([cookie_ground], {}, {})
     assert state1.player.jump_phase == JumpPhase.GROUNDED
 
     # State 2: First Jump (moving up)
-    cookie_jump1 = TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, -100.0, TrackStatus.ACTIVE)
+    cookie_jump1 = TrackedObject(
+        cast(TrackId, 1),
+        DetectionClass.COOKIE,
+        BBox(0, 0, 10, 10),
+        0.0,
+        -100.0,
+        TrackStatus.ACTIVE,
+    )
     state2 = builder.build([cookie_jump1], {}, {}, previous_state=state1)
     assert state2.player.jump_phase == JumpPhase.FIRST_JUMP
     assert state2.player.time_since_last_jump == 0.0  # reset on transition
 
     # State 3: Still First Jump (moving up, but not a new jump)
-    cookie_jump1_cont = TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, -80.0, TrackStatus.ACTIVE)
+    cookie_jump1_cont = TrackedObject(
+        cast(TrackId, 1),
+        DetectionClass.COOKIE,
+        BBox(0, 0, 10, 10),
+        0.0,
+        -80.0,
+        TrackStatus.ACTIVE,
+    )
     state3 = builder.build([cookie_jump1_cont], {}, {}, previous_state=state2)
     assert state3.player.jump_phase == JumpPhase.FIRST_JUMP
     assert state3.player.time_since_last_jump == 0.1
 
     # State 4: Second Jump (sudden large upward velocity)
-    cookie_jump2 = TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, -150.0, TrackStatus.ACTIVE)
+    cookie_jump2 = TrackedObject(
+        cast(TrackId, 1),
+        DetectionClass.COOKIE,
+        BBox(0, 0, 10, 10),
+        0.0,
+        -150.0,
+        TrackStatus.ACTIVE,
+    )
     state4 = builder.build([cookie_jump2], {}, {}, previous_state=state3)
     assert state4.player.jump_phase == JumpPhase.SECOND_JUMP
     assert state4.player.time_since_last_jump == 0.0  # reset on transition
 
     # State 5: Falling (moving down)
-    cookie_fall = TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, 50.0, TrackStatus.ACTIVE)
+    cookie_fall = TrackedObject(
+        cast(TrackId, 1),
+        DetectionClass.COOKIE,
+        BBox(0, 0, 10, 10),
+        0.0,
+        50.0,
+        TrackStatus.ACTIVE,
+    )
     state5 = builder.build([cookie_fall], {}, {}, previous_state=state4)
     assert state5.player.jump_phase == JumpPhase.FALLING
     assert state5.player.time_since_last_jump == 0.1
@@ -115,15 +149,20 @@ def test_builder_jump_transitions() -> None:
 def test_builder_character_status_override() -> None:
     """Verify character_status dictionary overrides heuristics."""
     builder = DefaultStateBuilder()
-    cookie = TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, 0.0, TrackStatus.ACTIVE)
-    
+    cookie = TrackedObject(
+        cast(TrackId, 1),
+        DetectionClass.COOKIE,
+        BBox(0, 0, 10, 10),
+        0.0,
+        0.0,
+        TrackStatus.ACTIVE,
+    )
+
     # Even though velocity is 0 (normally GROUNDED), we force FALLING via character_status
     state = builder.build(
-        [cookie], 
-        {}, 
-        {"jump_phase": "FALLING", "airborne": True, "grounded": False}
+        [cookie], {}, {"jump_phase": "FALLING", "airborne": True, "grounded": False}
     )
-    
+
     assert state.player.jump_phase == JumpPhase.FALLING
     assert state.player.airborne is True
     assert state.player.grounded is False
@@ -133,7 +172,9 @@ def test_builder_timers_and_scroll() -> None:
     """Verify timers accumulate and scroll distance integrates correctly."""
     builder = DefaultStateBuilder(fixed_dt=0.5)
 
-    prev_player = PlayerState(0.0, 0.0, JumpPhase.GROUNDED, False, True, 1.0, 5.0, False)
+    prev_player = PlayerState(
+        0.0, 0.0, JumpPhase.GROUNDED, False, True, 1.0, 5.0, False
+    )
     prev_state = GameState(1, prev_player, [], 200.0, 1000.0, cast(StepId, 5))
 
     state = builder.build([], {}, {}, previous_state=prev_state)

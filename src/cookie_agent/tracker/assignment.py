@@ -1,7 +1,6 @@
 """Assignment logic for matching detections to tracked objects in pure Python."""
 
 import math
-from typing import cast
 
 from cookie_agent.core.detection import Detection
 from cookie_agent.core.tracking import TrackedObject
@@ -22,7 +21,9 @@ def calculate_centroid_distance(det: Detection, track: TrackedObject) -> float:
     return math.sqrt(dx * dx + dy * dy)
 
 
-def compute_iou(box1_coords: tuple[int, int, int, int], box2_coords: tuple[int, int, int, int]) -> float:
+def compute_iou(
+    box1_coords: tuple[int, int, int, int], box2_coords: tuple[int, int, int, int]
+) -> float:
     """Calculate Intersection-over-Union (IoU) of two bounding boxes.
 
     Args:
@@ -73,13 +74,13 @@ def greedy_assignment(
     # Build cost matrix (row: detection, col: track)
     # Store tuples of (cost, det_idx, track_idx) for sorting
     costs: list[tuple[float, int, int]] = []
-    
+
     for d_idx, det in enumerate(detections):
         for t_idx, track in enumerate(tracks):
             # Must match class
             if det.class_name != track.class_name:
                 continue
-                
+
             dist = calculate_centroid_distance(det, track)
             if dist <= max_distance:
                 costs.append((dist, d_idx, t_idx))
@@ -97,7 +98,9 @@ def greedy_assignment(
             assigned_detections.add(d_idx)
             assigned_tracks.add(t_idx)
 
-    unmatched_detections = [i for i in range(len(detections)) if i not in assigned_detections]
+    unmatched_detections = [
+        i for i in range(len(detections)) if i not in assigned_detections
+    ]
     unmatched_tracks = [i for i in range(len(tracks)) if i not in assigned_tracks]
 
     return matched_indices, unmatched_detections, unmatched_tracks

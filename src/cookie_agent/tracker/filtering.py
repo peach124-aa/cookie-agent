@@ -62,6 +62,5 @@ class LifecycleManager:
             list[TrackedObject]: Only ACTIVE or OCCLUDED tracks.
         """
         return [
-            t for t in tracks 
-            if t.status in (TrackStatus.ACTIVE, TrackStatus.OCCLUDED)
+            t for t in tracks if t.status in (TrackStatus.ACTIVE, TrackStatus.OCCLUDED)
         ]
