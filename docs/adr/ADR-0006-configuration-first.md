@@ -19,8 +19,22 @@ In complex agent architectures (including computer vision pipelines, state track
 We establish a strict **Configuration-First (Config-First)** architecture for the entire Cookie Agent system:
 1.  **Zero Runtime Constants**: Hardcoding device paths, bounding box confidence thresholds, action delay ms, reward weights, or emulator serial numbers is strictly prohibited.
 2.  **Unified Configuration Directory**: All configurations are stored under `configs/`, separated into version-controlled baseline files under `configs/defaults/` and git-ignored overrides under `configs/local/`.
-3.  **Environment Variables Priority**: System environment variables are mapped to configuration nodes and override both default and local files at runtime.
+3.  **Environment Variables Priority**: System environment variables prefixed with `COOKIE_AGENT_` override both default and local files at runtime.
 4.  **Serialization Schema Validation**: All configs must declare a top-level `schema_version` tag to ensure structure migrations can occur programmatically.
+5.  **List Merge Substitution (List Overwrite)**:
+    When merging local configuration overrides or environment parameters with baseline configurations, lists are treated as atomic units. Lists do NOT merge item-by-item or concatenate; instead, the override list completely replaces the default list. This guarantees deterministic behavior and simplifies debugging.
+
+---
+
+## Rejected Alternatives
+We evaluated several existing Python configuration libraries but rejected them in favor of a custom YAML-based loader:
+
+- **Hydra & OmegaConf**:
+  - *Why Rejected*: Hydra brings significant complexity, CLI pollution, and slow imports. It generates automatic build caches and directory artifacts that complicate replay reproducibility. We need simple, lightweight configurations that do not hijack terminal command-line arguments.
+- **Dynaconf**:
+  - *Why Rejected*: Dynaconf has a large footprint, automates massive amounts of magic loading behavior (which makes tracking where values came from difficult), and can behave non-deterministically based on environment settings.
+- **Pydantic Settings**:
+  - *Why Rejected*: Pydantic brings large dependencies and slow runtime overheads. Writing a pure python configuration loader using frozen dataclasses and native `ruamel.yaml` parser keeps our dependency tree clean, minimizes package bloat, guarantees fast startup times, and makes long-term maintenance straightforward.
 
 ---
 

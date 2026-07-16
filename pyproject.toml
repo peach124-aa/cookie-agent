@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    # Runtime dependencies will be specified in future phases
+    "ruamel.yaml>=0.17.0",
 ]
 
 [tool.setuptools]
