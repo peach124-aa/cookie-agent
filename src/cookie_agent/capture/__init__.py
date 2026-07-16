@@ -11,9 +11,9 @@ from cookie_agent.capture.windows_capture import WindowsCapture
 
 __all__: list[str] = [
     "BaseCaptureSource",
-    "WindowsCapture",
-    "FrameBuffer",
     "CaptureError",
-    "WindowNotFoundError",
     "CaptureTimeoutError",
+    "FrameBuffer",
+    "WindowNotFoundError",
+    "WindowsCapture",
 ]

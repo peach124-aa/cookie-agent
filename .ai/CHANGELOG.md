@@ -61,3 +61,15 @@ All reviewed and approved milestone commits for this repository are logged here.
   - **WindowsCapture**: Implemented GDI-based screen capture retrieving raw emulator graphics buffers in BGRA format directly without color conversion or external package dependencies (such as numpy, OpenCV, or torch).
   - **Bounded FrameBuffer**: Implemented a thread-safe FIFO queue dropping the oldest frame on capacity overflow.
   - **Unit Testing**: 100% test coverage using platform-independent mock layers for Windows GDI and handle APIs.
+
+---
+
+## Commit 0007
+- **Title**: ADB Device Controller
+- **Status**: Approved
+- **Description**: Implemented the Android Device Controller:
+  - **ADBClient**: Subprocess-based thin wrapper around `adb` CLI supporting push, pull, shell, connect, and health check.
+  - **Commands Builders**: Declared immutable builders returning tuple argument parameters mapping taps, swipes, and key events.
+  - **Output Parsers**: Parsers extracting resolution bounds (`wm size`), device lists, and window focus configurations without code duplicate regex.
+  - **ADBDeviceController**: High-level execution client implementing `DeviceController` protocol.
+  - **Unit Testing**: Complete unit test mapping client retries, error validations, parser flows, and execution commands.
