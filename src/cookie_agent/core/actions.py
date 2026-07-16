@@ -8,8 +8,11 @@ class IntentType(StrEnum):
     """Locomotion behavior options."""
 
     NONE = auto()
+    IDLE = auto()
     JUMP = auto()
+    DOUBLE_JUMP = auto()
     SLIDE = auto()
+    DASH = auto()
     RELAY = auto()
 
 

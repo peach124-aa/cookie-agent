@@ -4,6 +4,18 @@ All reviewed and approved milestone commits for this repository are logged here.
 
 ---
 
+## Commit 0018
+- **Title**: Action Planner
+- **Status**: Ready
+- **Description**: Implemented the `ActionPlanner` protocol to securely translate abstract intents into low-level `ADBCommand` sequences without side effects.
+  - **Core Modifications**: Expanded `IntentType` enum in `actions.py` to support `IDLE`, `DOUBLE_JUMP`, and `DASH`.
+  - **Planner Engine**: Implemented `CookieActionPlanner` which sequentially routes deterministic `ActionIntent` to exact coordinates defined in pure Python.
+  - **Mapping & Builder**: Configured pure-python `mapping.py` static coordinates, coupled with atomic atomic command sequence constructors (`tap`, `swipe`, `hold`, `release`) in `builder.py`.
+  - **Isolation Verification**: Strictly respects isolation boundaries. Executes no subprocesses, doesn't construct `ADBClient`, handles no networking, imports zero environmental or ML libraries.
+  - **Test Suite**: Developed rigorous matrix tests mapping all `IntentType` enumerations to exact output list boundaries, including exception bridging for invalid routing payloads.
+
+---
+
 ## Commit 0017
 - **Title**: Policy Module
 - **Status**: Ready

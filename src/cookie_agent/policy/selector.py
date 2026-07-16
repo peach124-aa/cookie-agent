@@ -16,18 +16,20 @@ class PolicyProtocol(Protocol):
 
 class PolicySelector:
     """Routes state evaluation to a dynamically selected policy.
-    
-    Allows dynamic swapping between RulePolicy, PPOPolicy, etc., 
+
+    Allows dynamic swapping between RulePolicy, PPOPolicy, etc.,
     without instantiating singletons.
     """
 
-    def __init__(self, policies: dict[str, PolicyProtocol], default_policy: str) -> None:
+    def __init__(
+        self, policies: dict[str, PolicyProtocol], default_policy: str
+    ) -> None:
         """Initialize the selector with a registry of policies.
-        
+
         Args:
             policies: A mapping of policy names to Policy instances.
             default_policy: The name of the policy to use by default.
-            
+
         Raises:
             PolicyError: If the default policy is not in the policies dict.
         """
@@ -39,10 +41,10 @@ class PolicySelector:
 
     def set_active_policy(self, name: str) -> None:
         """Switch the active policy router.
-        
+
         Args:
             name: The name of the registered policy.
-            
+
         Raises:
             PolicyError: If the name is not registered.
         """
@@ -52,10 +54,10 @@ class PolicySelector:
 
     def select_action(self, state: GameState) -> ActionIntent:
         """Delegate action selection to the currently active policy.
-        
+
         Args:
             state: The unified GameState.
-            
+
         Returns:
             The chosen ActionIntent.
         """
