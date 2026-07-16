@@ -1,250 +1,284 @@
 # Software Design Specification: Core Interfaces
 
-This document defines the frozen contract specifications, data structures, and communication protocols for the **Cookie Agent** engine.
+This document defines the frozen architectural specifications, data structures, and communication protocols for the **Cookie Agent** engine.
 
 ---
 
 ## 1. Architecture Overview
 
-Processing pipelines within the Cookie Agent follow a strictly sequential execution model:
+### Execution Pipeline
+The Cookie Agent core execution loop runs as a strictly sequential, low-latency pipeline to process graphical inputs and emit tactile commands:
 
 ```mermaid
-graph LR
-    Frame[Frame] --> Detector[Detection Engine]
-    Detector --> Tracker[State Tracker]
-    Tracker --> Builder[GameState Builder]
-    Builder --> Policy[Policy Engine]
-    Policy --> Planner[Action Planner]
-    Planner --> ADB[ADB Controller]
-    
-    %% Async Observational Hooks
-    Builder -.-> Reward[Reward Strategy]
-    Builder -.-> Replay[Replay Recorder]
+graph TD
+    Frame[Frame] --> Detector[Detector]
+    Detector --> Tracker[Tracker]
+    Tracker --> StateBuilder[StateBuilder]
+    StateBuilder --> Policy[Policy]
+    Policy --> ActionPlanner[ActionPlanner]
+    ActionPlanner --> DeviceController[DeviceController]
 ```
 
 1.  **Frame**: Lossless graphical buffer captured from the target Android Emulator execution window.
-2.  **Detection**: Extracts raw bounding box elements (obstacles, jellies, cookies) from the frame.
-3.  **Tracker**: Links continuous bounding boxes across time steps to construct object trajectories and background scroll speeds.
-4.  **GameState Builder**: Fuses tracking histories with static config guidelines and optional metadata hints to output a single unified state description.
-5.  **Reward**: Evaluates the step state change to generate reinforcement learning performance scores.
-6.  **Policy**: Decision-maker predicting the next motion behavior (e.g. jump, slide).
-7.  **Action Planner**: Translates abstract motion intents into concrete tactile command offsets and intervals.
-8.  **ADB Controller**: Inject touch coordinates and signals directly to emulator socket pipes.
-9.  **Replay Recorder**: Asynchronously registers observation state snapshots to logs.
+2.  **Detector**: Run image inference to extract bounding boxes of active objects on screen.
+3.  **Tracker**: Tracks objects across multiple frames to compute continuous velocities and trajectories.
+4.  **StateBuilder**: Fuses tracker outputs, OCR metrics, character metadata, and prior states to construct a unified `GameState`.
+5.  **Policy**: Decision-making model predicting high-level movement objectives.
+6.  **ActionPlanner**: Maps motion intents to emulator screen coordinates, tap offsets, and touch hold timings.
+7.  **DeviceController**: Inject click and drag inputs to the emulator TCP socket streams.
+
+### Asynchronous Pipeline Consumers
+The `RewardStrategy` and `ReplayObserver` are **not** part of the critical, low-latency execution path. Instead, they act as asynchronous consumers of the outputs from the pipeline steps:
+
+```mermaid
+graph TD
+    subgraph Execution Pipeline
+        StateBuilder[StateBuilder]
+        ActionPlanner[ActionPlanner]
+    end
+
+    subgraph Asynchronous Consumers
+        RewardStrategy[RewardStrategy]
+        ReplayObserver[ReplayObserver]
+    end
+
+    StateBuilder -->|GameState| RewardStrategy
+    StateBuilder -->|GameState| ReplayObserver
+    ActionPlanner -->|ADBCommand| ReplayObserver
+```
+
+-   **RewardStrategy**: Evaluates `GameState` transitions asynchronously to calculate rewards for training.
+-   **ReplayObserver**: Logs raw observations (`Frame`, `ADBCommand`, and associated meta-properties) to disk for behavior replication, regression tests, and offline reinforcement learning.
 
 ---
 
 ## 2. Data Models
 
-This section describes the conceptual data models defining system state contracts.
-
 ### Frame
-- **Purpose**: Wraps raw screen graphics buffer data.
-- **Responsibilities**: Carry timestamp, dimensions, and raw pixel channels.
+- **Purpose**: Wraps raw screen capture buffers.
 - **Owner**: `CaptureSource`
-- **Inputs**: Graphical desktop/window buffer.
-- **Outputs**: Normalized pixel matrix.
-- **Relationships**: Fed into `Detector`.
+- **Inputs**: Window graphic memory stream.
+- **Outputs**: Lossless pixel matrix.
+- **Relationships**: Fed into `Detector` and `ReplayObserver`.
 
 ### BBox
-- **Purpose**: Defines a two-dimensional bounding region on the screen coordinate space.
-- **Responsibilities**: Holds coordinate limits (`xmin, ymin, xmax, ymax`) and detection confidence.
+- **Purpose**: Defines a 2D bounding region on the screen coordinate plane.
 - **Owner**: `Detector`
-- **Inputs**: Calculated box regions.
-- **Outputs**: Rectangular boundaries.
-- **Relationships**: Embedded inside `Detection` models.
+- **Inputs**: Coordinate bounds calculations.
+- **Outputs**: Normalized bounding boundaries (`xmin`, `ymin`, `xmax`, `ymax`).
+- **Relationships**: Contained within `Detection` and `TrackedObject`.
 
 ### Detection
-- **Purpose**: Encapsulates a raw object class predicted on a single frame.
-- **Responsibilities**: Wraps `BBox`, classification category (e.g., jelly, obstacle), and prediction confidence.
+- **Purpose**: Conceptual output representation of a single inferred object.
 - **Owner**: `Detector`
-- **Inputs**: Frame inference outputs.
-- **Outputs**: Labeled box instances.
-- **Relationships**: Fed into the `Tracker` module.
+- **Properties**:
+  - **Frame ID**: Identifies which frame generated the prediction.
+  - **Timestamp**: Time of frame capture (used to verify latency).
+  - **Class**: Entity type classification (e.g., OBSTACLE, JELLY, POTION).
+  - **BBox**: Spatial box region coordinates.
+  - **Confidence**: Inference probability score.
+  - **Lane (Optional)**: Segmented vertical zone index indicating layout positioning.
+  - **Detector Name**: String tag indicating which model version performed the check.
+- **Relationships**: Generated by `Detector`, consumed by `Tracker`.
 
 ### TrackedObject
-- **Purpose**: Represents an active, uniquely identified game element tracked over multiple frames.
-- **Responsibilities**: Maintain object ID, classification, velocity vector, and trajectory history.
+- **Purpose**: Follows a specific entity over time to determine velocity and state.
 - **Owner**: `Tracker`
-- **Inputs**: Sequence of spatial Detections.
-- **Outputs**: Position vectors across time.
-- **Relationships**: Fed into the `GameState Builder`.
+- **Properties**:
+  - **Object ID**: Persistent identifier across frames.
+  - **Detection**: Bounding coordinates and confidence.
+  - **Velocity Vector**: Calculated pixel delta per second.
+  - **Lifecycle State**: Active tracker status tracking (see Section 4).
+- **Relationships**: Produced by `Tracker`, consumed by `StateBuilder`.
 
 ### PlayerState
-- **Purpose**: Captures status parameters of the cookie.
-- **Responsibilities**: Tracks health level (HP), jumping/sliding states, fever mode indicators, invincibility frames, and speed buffs.
-- **Owner**: `GameState Builder`
-- **Inputs**: Tracker annotations and frame OCR results.
-- **Outputs**: Typed player status properties.
-- **Relationships**: Embedded inside the `GameState`.
+- **Purpose**: Captures state variables of the running character.
+- **Owner**: `StateBuilder`
+- **Properties**:
+  - **Velocity**: Speed vector of the character.
+  - **Jump Phase**: Categorical value tracking jump status (`GROUNDED`, `FIRST_JUMP`, `SECOND_JUMP`, `FALLING`).
+  - **Airborne**: Boolean flag specifying if the cookie is in the air.
+  - **Grounded**: Boolean flag specifying if the cookie is touching a platform.
+  - **Time Since Last Jump**: Temporal tracker to avoid command spam.
+  - **Time Since Last Damage**: Temporal tracker to compute post-damage invincibility durations.
+  - **Relay Available**: Boolean flag indicating if a backup character remains.
+  - **Buffs (Optional Metadata)**: Dynamic key-value pairs carrying passive statuses (e.g. Giant, Blast, Magnet).
+- **Relationships**: Contained within `GameState`.
 
 ### MapHint
-- **Purpose**: Optional static metadata outlining static obstacle or jelly layouts.
-- **Responsibilities**: Pre-load map structures to optimize path planning.
-- **Owner**: Developer configurations.
-- **Inputs**: Static configuration JSON/YAML files.
-- **Outputs**: Scheduled target locations.
-- **Relationships**: Optional input parameter to the `GameState Builder`.
+- **Purpose**: Advisory metadata outlining known upcoming obstacles.
+- **Owner**: Configurations
+- **Inputs**: Configuration files.
+- **Outputs**: Static coordinate queues.
+- **Relationships**: Advisory input to `StateBuilder`.
 
 ### GameState
-- **Purpose**: The single source of truth describing the entire game environment at any specific moment.
-- **Responsibilities**: Integrates `PlayerState`, list of active `TrackedObject` sequences, background scroll speed, and scroll distance.
-- **Owner**: `GameState Builder`
-- **Inputs**: Fused tracker data.
-- **Outputs**: Frozen environment state maps.
-- **Relationships**: Fed into `Policy`, `RewardStrategy`, and `ReplayObserver`.
+- **Purpose**: Consolidated environment layout representation at a given step.
+- **Owner**: `StateBuilder`
+- **Properties**:
+  - **PlayerState**: Character metrics.
+  - **TrackedObjects**: Active entities in the viewport.
+  - **Background Scroll Speed**: Visual scrolling rate.
+  - **Scroll Distance**: Traversed path offset.
+  - **Schema Version**: Format compatibility tag.
+- **Relationships**: Consumed by `Policy`, `RewardStrategy`, and `ReplayObserver`.
 
 ### ActionIntent
-- **Purpose**: Abstract motion behavior decision.
-- **Responsibilities**: Declares jump levels (NO_ACTION, JUMP, DOUBLE_JUMP) or slide status (SLIDE_START, SLIDE_HOLD, SLIDE_END).
+- **Purpose**: Abstract motion decisions.
 - **Owner**: `Policy`
-- **Inputs**: GameState metrics.
-- **Outputs**: Motion behavior flags.
-- **Relationships**: Fed into `ActionPlanner`.
+- **Options**: `NONE`, `JUMP`, `SLIDE`, `RELAY`.
+- **Relationships**: Emitted by `Policy`, consumed by `ActionPlanner`.
 
 ### ADBCommand
-- **Purpose**: Low-level emulator command.
-- **Responsibilities**: Holds device touch event details (input file target, X/Y coordinates, tap durations, delays).
+- **Purpose**: Structured input instruction to trigger.
 - **Owner**: `ActionPlanner`
-- **Inputs**: Motion behavior mappings.
-- **Outputs**: Tactile click instruction streams.
-- **Relationships**: Executed by `DeviceController`.
+- **Properties**:
+  - **Event Type**: Event type specifier (e.g., TouchDown, TouchMove, TouchUp).
+  - **Coordinates**: Precise X/Y pixel coordinates.
+  - **Hold Duration**: Button press duration in milliseconds.
+  - **Delay**: Pause before sending next command.
+- **Relationships**: Executed by `DeviceController`, recorded by `ReplayObserver`.
 
 ### RewardEvent
-- **Purpose**: Serialized evaluation metric for RL step changes.
-- **Responsibilities**: Holds step-wise reward values, event classifications (e.g. collision, jelly collected), and metadata.
+- **Purpose**: Performance metrics for RL environments.
 - **Owner**: `RewardStrategy`
-- **Inputs**: GameState transitions.
-- **Outputs**: Numeric reward signals.
-- **Relationships**: Fed to external training loops.
+- **Properties**:
+  - **Value**: Reward scalar.
+  - **Event Type**: Event classification (e.g., COLLISION, FEVER_ENTER, Potions Collected).
+- **Relationships**: Emitted by `RewardStrategy`.
 
 ---
 
 ## 3. Protocols
 
-This section freezes component interface behavior rules.
-
 ### CaptureSource
-- **Purpose**: Acquires frames from the Android emulator window.
 - **Input**: None (polls target application handles).
 - **Output**: `Frame`
-- **Responsibilities**: Find emulator window, capture display graphic memory, attach timestamps, and export pixel arrays under 16.6ms.
-- **Implementation Notes**: Must support non-blocking asynchronous loops, returning empty or error flags if the window loses focus.
+- **Responsibilities**: Grabs lossless emulator graphic memory buffers within 16.6ms.
 
 ### Detector
-- **Purpose**: Run inference to find screen coordinates of game elements.
 - **Input**: `Frame`
 - **Output**: List of `Detection` structures
-- **Responsibilities**: Run deep learning models, filter box boundaries via confidence thresholds, and assign classification labels.
-- **Implementation Notes**: Must operate within 10ms target duration, strictly reading configuration model paths from static JSON/YAML setups.
+- **Responsibilities**: Infers object categories and coordinates using weights configured under `models/`.
 
 ### Tracker
-- **Purpose**: Links frames across the timeline to follow obstacles and jellies continuously.
 - **Input**: List of `Detection` structures
 - **Output**: List of `TrackedObject` structures
-- **Responsibilities**: Generate unique entity IDs, predict trajectories using velocity frames, and prune dead objects that exited the viewport.
-- **Implementation Notes**: Leverages simple distance thresholds or linear estimators to avoid heavy computational overhead.
+- **Responsibilities**: Links object identifiers across consecutive frame instances, tracks entity lifecycles, and computes velocities.
 
 ### StateBuilder
-- **Purpose**: Compose the unified, synchronized game state structure.
-- **Input**: List of `TrackedObject` structures, `Frame` (for direct meters OCR), and optional `MapHint`
+- **Input**: List of `TrackedObject` structures, `OCR Results` (parsed health/scores), `Character Status` metadata, optional `MapHint`, and optional `Previous GameState`.
 - **Output**: `GameState`
-- **Responsibilities**: Calculate player HP meter height, parse background scrolling velocities, align coordinates, and output standard state schemas.
-- **Implementation Notes**: Combines tracker outputs and lightweight template matchers to isolate status indicators (e.g. fever mode).
+- **Responsibilities**:
+  - Construct the unified frame state context.
+  - Reference `Previous GameState` to derive temporal tracking properties: character velocity, jump phase transitions, active timers, and cooldown parameters.
 
 ### RewardStrategy
-- **Purpose**: Evaluates step changes to score action outcomes.
 - **Input**: Previous `GameState`, Current `GameState`
 - **Output**: `RewardEvent`
-- **Responsibilities**: Assign positive points for distance traversed and jellies collected, and negative points for collisions or health losses.
-- **Implementation Notes**: Exposes configurable weight constants inside `configs/`.
+- **Responsibilities**: Compute scalar reinforcement training metrics.
 
 ### Policy
-- **Purpose**: Decision-making controller choosing movement objectives.
 - **Input**: `GameState`
 - **Output**: `ActionIntent`
-- **Responsibilities**: Predict next locomotion behavior (jump, slide, hold) to traverse obstacles safely.
-- **Implementation Notes**: Must support both rule-based heuristics and deep reinforcement learning neural execution environments.
+- **Responsibilities**: Evaluate spatial threats to decide high-level navigation actions.
+- **Implementation Note**: Interface must remain algorithm-agnostic; no references to reinforcement learning backends (like PPO) are allowed.
 
 ### ActionPlanner
-- **Purpose**: Translates movement decisions into tap triggers.
-- **Input**: `ActionIntent`, `GameState` (for speed validation)
+- **Input**: `ActionIntent`, `GameState` (current scroll velocity)
 - **Output**: Sequence of `ADBCommand` instructions
-- **Responsibilities**: Map intents to coordinates on left/right regions of emulator screen, compute press hold durations, and inject delays.
-- **Implementation Notes**: Adjusts press intervals dynamically based on background scrolling speed.
+- **Responsibilities**: Map abstract motion intents to hardware event streams. Calculates multi-jump logic, press timings, key release parameters, and implements random coordinate offsets to mimic human inputs.
 
 ### DeviceController
-- **Purpose**: Injects touch signals to the emulator.
 - **Input**: Sequence of `ADBCommand` instructions
-- **Output**: Success / Failure indicator
-- **Responsibilities**: Translate commands to low-level touch events and write directly to device socket streams.
-- **Implementation Notes**: Must optimize connection pipelines to avoid command queue clogging.
+- **Output**: Success indicator
+- **Responsibilities**: Transmits input instructions to emulator pipes.
 
 ### ReplayObserver
-- **Purpose**: Logs observations for behavior modeling.
-- **Input**: `GameState`, `ActionIntent`, `RewardEvent`
-- **Output**: None (saves directly to storage)
-- **Responsibilities**: Serialize state data step-by-step to JSONL files.
-- **Implementation Notes**: Operates asynchronously to prevent slowing down the main execution loop.
+- **Input**: `Frame`, Sequence of `ADBCommand` instructions, and `Metadata` (timestamps, runtime configs).
+- **Output**: None (serializes snapshot files asynchronously)
+- **Design Rationale**: 
+  - The replay dataset stores only raw graphical observation records and input commands. 
+  - By avoiding the logging of derived representations (like `GameState` or `Detections`), we ensure that downstream components (`Detector`, `Tracker`, `StateBuilder`) can be fully rebuilt, optimized, and tested regression-free by re-running historical replay datasets through modified pipelines.
 
 ---
 
-## 4. Design Rules
+## 4. Tracker Lifecycle States
 
-1.  **Vision is Ground Truth**: The visual layout is the absolute state representation. Sensor predictions must never be overridden by historical map models if they conflict.
-2.  **MapHint is Optional**: The system must run successfully on pure visual input when no map configuration metadata exists.
-3.  **Policy Outputs Intent Only**: Decision models choose behaviors (e.g., Jump), not coordinates. Action planners handle coordinate translations.
-4.  **Planner Converts Intent into Commands**: All pixel offsets and timing parameters are calculated by the action planner, keeping the policy clean of tactile dependencies.
-5.  **Replay Records Raw Observations**: Do not record derived features or model weights. Store raw inputs to support future model testing.
-6.  **Reward is Computed from State Transitions**: Reward values are calculated strictly by evaluating step-wise differences in game states.
-7.  **No Module Directly Depends on PPO**: Policy abstractions must not reference specific RL algorithms (like PPO). They must remain algorithm-agnostic.
-8.  **Everything Communicates Through Interfaces**: Strict separation of concerns is maintained; direct coupling between runtime captures and vision models is prohibited.
-
----
-
-## 5. Data Flow
+`TrackedObject` handles entity identity transitions using four operational states:
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant Host as Emulator / Win32
-    participant Cap as CaptureSource
-    participant Det as Detector
-    participant Trk as Tracker
-    participant Bld as StateBuilder
-    participant Pol as Policy
-    participant Pln as ActionPlanner
-    participant Dev as DeviceController
-
-    loop 60 FPS Capture Loop
-        Cap->>Host: Grabs window screen memory
-        Host-->>Cap: Frame buffer raw pixel matrix
-        Cap->>Det: Send Frame
-        Det->>Det: Run neural network inference
-        Det-->>Trk: List of coordinate Detections
-        Trk->>Trk: Assign Tracked IDs & predict velocities
-        Trk-->>Bld: List of TrackedObjects
-        Bld->>Bld: Fuses HP bar levels & metadata
-        Bld-->>Pol: GameState (unified schema)
-        Pol->>Pol: Predict path navigation
-        Pol-->>Pln: ActionIntent (e.g. Jump)
-        Pln->>Pln: Calculate screen offsets & hold durations
-        Pln-->>Dev: Sequence of ADBCommands
-        Dev->>Host: Write touchscreen signals to socket
-    end
+stateDiagram-v2
+    [*] --> ACTIVE
+    ACTIVE --> OCCLUDED: Vision lost temporarily
+    ACTIVE --> CONSUMED: Collected by player
+    ACTIVE --> LOST: Exited boundaries
+    OCCLUDED --> ACTIVE: Re-identified
+    OCCLUDED --> LOST: Tracking threshold timeout
 ```
+
+-   **ACTIVE**: The object is currently visible in the active viewport and updated by new frame detections.
+-   **OCCLUDED**: The object's visual bounds are temporarily blocked by other entities or screen clutter. The tracker maintains trajectory estimations without visual confirmation.
+-   **CONSUMED**: The object is collected or destroyed by active player interaction (e.g. collecting a jelly or coin).
+-   **LOST**: The object is pruned because it exited viewport boundaries or tracking estimates failed to associate with new detections within a set frame threshold.
+
+### Rationale: CONSUMED vs. LOST
+It is critical to distinguish between `CONSUMED` and `LOST` because they reflect different semantic events in the game. `CONSUMED` triggers positive scores and registers successful interactions. `LOST` indicates obstacles that were avoided or jellies that were missed.
+
+---
+
+## 5. Design Rules
+
+1.  **Vision is Ground Truth**: The visual layout is the absolute state representation. Sensor predictions must never be overridden by historical map models if they conflict.
+2.  **Replay Stores Raw Observations Only**: Save only raw graphical input (`Frame`), output interactions (`ADBCommand`), and setup configurations (`Metadata`).
+3.  **Policy Never Emits Coordinates**: Policies output abstract movement categories only (`JUMP`, `SLIDE`). Handlers and coordinate layouts are owned by the `ActionPlanner`.
+4.  **Planner Owners Timing**: Precise hold durations, click intervals, and humanization delays are calculated entirely by the `ActionPlanner`.
+5.  **Interfaces are Algorithm Agnostic**: Design contracts must never inherit from specific training backends. No module may depend directly on PPO.
+6.  **Previous GameState is Allowed Only Inside StateBuilder**: Execution modules must remain stateless. Only the `StateBuilder` may access historical `GameState` to calculate temporal features.
+7.  **MapHint is Advisory Only**: Map templates are used as hints. The agent must execute correctly if hints are absent or conflict with active visual detections.
 
 ---
 
 ## 6. Versioning
 
-### Schema Version
-- All data models (`GameState`, `Detection`, etc.) must include a string metadata key: `schema_version` (e.g. `1.0.0`).
-- Major schema versions indicate breaking structure shifts.
+```mermaid
+classDiagram
+    class SchemaVersion {
+        +String major_minor_patch
+        +BackwardsCompatibilityChecks()
+    }
+    class InterfaceVersion {
+        +String api_version
+        +InterfaceMatchCheck()
+    }
+    class DatasetVersion {
+        +String format_version
+        +MigrationStrategy()
+    }
+    class ProducerVersion {
+        +String build_tag
+        +LoggingMetadata()
+    }
+```
 
-### Backward Compatibility
-- Serialized datasets (`datasets/replay/`) containing older schema versions must be convertible to newer shapes via conversion utilities.
+### Version Schemas
+1.  **Schema Version**: Governs serialization format layouts of models like `GameState`. Semantic versioning applies.
+2.  **Interface Version**: Controls API contract stability for protocols.
+3.  **Dataset Version**: Identifies data structures inside raw record files (`datasets/`).
+4.  **Producer Version**: Identifies code commit tags.
 
-### Future Extension Rules
-- All new attributes added to models must be optional, with declared defaults.
-- Adding fields to schemas requires matching modifications inside target ADR records.
+### Replay Compatibility & Migration
+To verify new pipelines on historical data:
+- Converting legacy records requires written migration handlers that read deprecated dataset formats and parse them into newer schemas.
+- Minor version revisions must remain backward-compatible. Major revisions require running migration CLI tools to convert historical database buffers.
+
+---
+
+## 7. Architecture Quality
+
+-   **Low Coupling**: Pipeline steps interact through defined interfaces using standard data models. Replacing the `Detector` has zero effect on the `Policy`.
+-   **High Cohesion**: Each component focuses on one specific task (e.g., `Detector` focuses purely on spatial predictions, leaving velocity calculations to `Tracker`).
+-   **Replay Compatibility**: Raw frame recordings allow complete offline reproduction of run states.
+-   **Offline RL Compatibility**: Saving raw frame-action pairs allows training policy networks via behavior cloning without live emulator instances.
+-   **Future replacements**: The clean separation of `Policy` and `ActionPlanner` makes it easy to switch between simple heuristic policies and advanced RL agents.
+-   **Multi-character & Multi-resolution Support**: Resolution scale matrices reside in configurations, allowing the `StateBuilder` to output normalized spatial state boundaries.
