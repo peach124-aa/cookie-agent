@@ -85,3 +85,15 @@ All reviewed and approved milestone commits for this repository are logged here.
   - **ReplayReader**: Lazily deserializes files back into immutable Frame structures.
   - **ReplayRecorder**: Concrete implementation conforming to the `ReplayObserver` protocol.
   - **Unit Testing**: Asserts write/read cycles, corrupt streams handling, formatting errors, and conformance validation.
+
+---
+
+## Commit 0009
+- **Title**: Detector Module
+- **Status**: Approved
+- **Description**: Implemented the object detection predictor subsystem:
+  - **Mock YOLO Inference Backend**: Inference protocol and mock loaders running predictions without PyTorch/GPU.
+  - **Pure NumPy Preprocessor**: Converts raw image frames, normalizes color coordinates, and scales resolutions.
+  - **NMS Postprocessor**: Computes box overlaps (IoU), suppresses overlaps, scales boxes back to original bounds, and filters scores.
+  - **Predictor**: Integrates loops conforming to the `Detector` contract.
+  - **Unit Testing**: Asserts nearest-neighbor scaling, mock prediction loads, and protocol checks.
