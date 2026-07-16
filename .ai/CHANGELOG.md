@@ -4,6 +4,29 @@ All reviewed and approved milestone commits for this repository are logged here.
 
 ---
 
+## Commit 0011
+- **Title**: State Builder
+- **Status**: Ready
+- **Description**: Implemented the State Builder Module in pure Python:
+  - **DefaultStateBuilder**: Conforms to the `StateBuilder` Protocol.
+  - **Unified GameState**: Combines tracked objects, OCR results, and character status into a single `GameState`.
+  - **Heuristics**: Derives `JumpPhase`, `airborne`, `grounded`, `scroll_speed`, and `scroll_distance` organically from velocity outputs and previous states if missing from metadata.
+  - **Tests**: Comprehensive unit testing ensuring transition state logic handles temporal features cleanly.
+
+---
+
+## Commit 0010
+- **Title**: Tracker Module
+- **Status**: Ready
+- **Description**: Implemented the Tracker Module in pure Python:
+  - **ObjectTracker**: Conforms to the `Tracker` Protocol.
+  - **Assignment Strategy**: Greedy assignment algorithm using Euclidean distance.
+  - **LifecycleManager**: Filters and transitions `TrackedObject` states through `ACTIVE`, `OCCLUDED`, `CONSUMED`, and `LOST`.
+  - **Velocity Calculation**: Derived velocity vectors natively based on timestamp deltas between consecutive frames.
+  - **Tests**: Comprehensive unit tests covering state transitions and protocols without introducing dependencies like `scipy`.
+
+---
+
 ## Commit 0001
 - **Title**: Bootstrap Pack v1.0
 - **Status**: Approved with Minor Changes
