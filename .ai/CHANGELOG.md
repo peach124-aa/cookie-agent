@@ -4,6 +4,18 @@ All reviewed and approved milestone commits for this repository are logged here.
 
 ---
 
+## Commit 0014
+- **Title**: RL Experience Buffer
+- **Status**: Ready
+- **Description**: Implemented the generic Reinforcement Learning experience module:
+  - **Generics-driven Architecture**: Pure Python `Experience`, `Trajectory`, and `RolloutBuffer` containers typed cleanly via `TypeVar` to fully decouple RL logic from Cookie Run abstractions.
+  - **Determinism**: Introduced deterministic, chronological `MiniBatchSampler`.
+  - **Memory Safety**: `Experience` arrays are strict slot-based, frozen dataclasses optimizing buffer scale overhead natively in Python.
+  - **Dependencies**: No PPO, PyTorch, NumPy, or serialization coupling. Strict Pure Python implementation.
+  - **Tests**: Comprehensive unit tests covering generic typing immutability, batch slicing, episode splitting, and reward aggregation.
+
+---
+
 ## Commit 0013
 - **Title**: Environment
 - **Status**: Ready

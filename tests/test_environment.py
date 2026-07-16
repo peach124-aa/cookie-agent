@@ -4,7 +4,6 @@ from collections.abc import Sequence
 from typing import cast
 
 import pytest
-
 from cookie_agent.core.actions import ActionIntent, ADBCommand, IntentType
 from cookie_agent.core.detection import BBox, Detection, DetectionClass
 from cookie_agent.core.frame import Frame
@@ -51,14 +50,25 @@ class MockDetector:
 
 class MockTracker:
     def track(self, detections: Sequence[Detection]) -> list[TrackedObject]:
-        return [TrackedObject(cast(TrackId, 1), DetectionClass.COOKIE, BBox(0, 0, 10, 10), 0.0, 0.0, TrackStatus.ACTIVE)]
+        return [
+            TrackedObject(
+                cast(TrackId, 1),
+                DetectionClass.COOKIE,
+                BBox(0, 0, 10, 10),
+                0.0,
+                0.0,
+                TrackStatus.ACTIVE,
+            )
+        ]
 
 
 class MockStateBuilder:
     def build(self, *args, **kwargs) -> GameState:  # type: ignore
         return GameState(
             schema_version=1,
-            player=PlayerState(0.0, 0.0, JumpPhase.GROUNDED, False, True, 0.0, 0.0, True, {}),
+            player=PlayerState(
+                0.0, 0.0, JumpPhase.GROUNDED, False, True, 0.0, 0.0, True, {}
+            ),
             objects=[],
             scroll_speed=100.0,
             scroll_distance=0.0,
@@ -67,7 +77,9 @@ class MockStateBuilder:
 
 
 class MockRewardStrategy:
-    def calculate(self, previous_state: GameState, current_state: GameState) -> RewardEvent:
+    def calculate(
+        self, previous_state: GameState, current_state: GameState
+    ) -> RewardEvent:
         return RewardEvent(1.0, "MOCK_REWARD")
 
 
@@ -89,7 +101,7 @@ class MockActionPlanner:
         return []
 
 
-@pytest.fixture
+@pytest.fixture()
 def environment() -> CookieEnvironment:
     return CookieEnvironment(
         capture_source=MockCaptureSource(),
@@ -118,9 +130,9 @@ def test_step_without_reset(environment: CookieEnvironment) -> None:
 def test_step(environment: CookieEnvironment) -> None:
     """Verify stepping returns the proper tuple and pipes correctly."""
     environment.reset()
-    
+
     state, reward, terminated, info = environment.step(ActionIntent(IntentType.JUMP))
-    
+
     assert state.step_id == 1
     assert reward.value == 1.0
     assert reward.event_type == "MOCK_REWARD"
@@ -133,15 +145,17 @@ def test_step(environment: CookieEnvironment) -> None:
 def test_close(environment: CookieEnvironment) -> None:
     """Verify close cleans up resources properly."""
     environment.close()
-    
+
     # We can inspect the internals for the test
     assert cast(MockCaptureSource, environment._capture_source).closed is True
-    assert cast(MockDeviceController, environment._device_controller).disconnected is True
+    assert (
+        cast(MockDeviceController, environment._device_controller).disconnected is True
+    )
 
 
 def test_capture_failure(environment: CookieEnvironment) -> None:
     """Verify missing frame returns error."""
     cast(MockCaptureSource, environment._capture_source)._frame = None
-    
+
     with pytest.raises(EnvironmentError, match="Failed to capture initial frame"):
         environment.reset()

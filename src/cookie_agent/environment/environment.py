@@ -81,7 +81,9 @@ class CookieEnvironment:
         self._previous_state = state
         return state
 
-    def step(self, action: ActionIntent) -> tuple[GameState, RewardEvent, bool, StepInfo]:
+    def step(
+        self, action: ActionIntent
+    ) -> tuple[GameState, RewardEvent, bool, StepInfo]:
         """Execute a step in the environment.
 
         Args:
