@@ -73,3 +73,15 @@ All reviewed and approved milestone commits for this repository are logged here.
   - **Output Parsers**: Parsers extracting resolution bounds (`wm size`), device lists, and window focus configurations without code duplicate regex.
   - **ADBDeviceController**: High-level execution client implementing `DeviceController` protocol.
   - **Unit Testing**: Complete unit test mapping client retries, error validations, parser flows, and execution commands.
+
+---
+
+## Commit 0008
+- **Title**: Replay Recorder
+- **Status**: Approved
+- **Description**: Implemented a replay recording subsystem:
+  - **Custom Binary Format**: Designed a lightweight, chunked binary file layout utilizing magic bytes and version verification checks.
+  - **ReplayWriter**: Losslessly serializes session headers, frames, and command lists.
+  - **ReplayReader**: Lazily deserializes files back into immutable Frame structures.
+  - **ReplayRecorder**: Concrete implementation conforming to the `ReplayObserver` protocol.
+  - **Unit Testing**: Asserts write/read cycles, corrupt streams handling, formatting errors, and conformance validation.
