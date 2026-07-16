@@ -44,6 +44,6 @@ class MiniBatchSampler(Generic[StateType, ActionType, InfoType]):
             if len(batch) == self._batch_size:
                 yield batch
                 batch = []
-        
+
         if batch:
             yield batch

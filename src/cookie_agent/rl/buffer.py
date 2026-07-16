@@ -57,6 +57,6 @@ class RolloutBuffer(Generic[StateType, ActionType, InfoType]):
             if exp.terminated:
                 yield Trajectory(current_episode)
                 current_episode = []
-        
+
         if current_episode:
             yield Trajectory(current_episode)

@@ -30,7 +30,9 @@ class Experience(Generic[StateType, ActionType, InfoType]):
 class Trajectory(Generic[StateType, ActionType, InfoType]):
     """A contiguous sequence of experiences representing a single episode."""
 
-    def __init__(self, experiences: list[Experience[StateType, ActionType, InfoType]]) -> None:
+    def __init__(
+        self, experiences: list[Experience[StateType, ActionType, InfoType]]
+    ) -> None:
         """Initialize the Trajectory.
 
         Args:

@@ -4,6 +4,18 @@ All reviewed and approved milestone commits for this repository are logged here.
 
 ---
 
+## Commit 0015
+- **Title**: PPO Algorithm
+- **Status**: Ready
+- **Description**: Implemented the core mathematical routines for Proximal Policy Optimization:
+  - **Returns & GAE**: `compute_discounted_returns` and `compute_gae` for robust baseline variance reduction.
+  - **Surrogate Objectives**: Clipped policy loss, Mean Squared Error value loss, and entropy bonus regularization.
+  - **Orchestration**: Created a strict `PPOAlgorithm` coordinator that routes sequential generic math without coupling to a trainer, optimizer, or deep learning backend.
+  - **Dependencies**: No PPO frameworks, PyTorch, NumPy, or neural network logic. Strict Pure Python operations applied over `list[float]`.
+  - **Tests**: Comprehensive unit tests covering GAE bounds, surrogate loss clipping bounds, and scalar sequence validation.
+
+---
+
 ## Commit 0014
 - **Title**: RL Experience Buffer
 - **Status**: Ready
