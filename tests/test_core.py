@@ -287,7 +287,7 @@ def test_protocol_conformance_and_runtime_checks() -> None:
 
     detector = DummyDetector()
     assert isinstance(detector, Detector)
-    assert len(detector.detect(capture_source.capture())) == 0  # type: ignore[arg-type]
+    assert len(detector.detect(capture_source.capture())) == 0
 
     tracker = DummyTracker()
     assert isinstance(tracker, Tracker)

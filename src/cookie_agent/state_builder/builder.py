@@ -29,12 +29,17 @@ class DefaultStateBuilder(StateBuilder):
     def build(
         self,
         tracked_objects: Sequence[TrackedObject],
-        ocr_results: dict[str, float | str],
-        character_status: dict[str, bool | float | str],
+        ocr_results: dict[str, float | str] | None = None,
+        character_status: dict[str, bool | float | str] | None = None,
         _map_hint: MapHint | None = None,
         previous_state: GameState | None = None,
     ) -> GameState:
         """Compose the unified state representation."""
+        if ocr_results is None:
+            ocr_results = {}
+        if character_status is None:
+            character_status = {}
+
         # 1. Identify Cookie properties
         cookie = next(
             (obj for obj in tracked_objects if obj.class_name == DetectionClass.COOKIE),

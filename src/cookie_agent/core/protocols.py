@@ -15,11 +15,12 @@ from cookie_agent.core.tracking import TrackedObject
 class CaptureSource(Protocol):
     """Contract for polling the emulator window stream."""
 
-    def capture(self) -> Frame | None:
+    def capture(self) -> Frame:
         """Capture a lossless graphic buffer.
 
         Returns:
-            A Frame if capture is successful, else None.
+            A Frame if capture is successful.
+            Raises exception on failure.
         """
         ...
 
@@ -63,8 +64,8 @@ class StateBuilder(Protocol):
     def build(
         self,
         tracked_objects: Sequence[TrackedObject],
-        ocr_results: dict[str, float | str],
-        character_status: dict[str, bool | float | str],
+        ocr_results: dict[str, float | str] | None = None,
+        character_status: dict[str, bool | float | str] | None = None,
         map_hint: MapHint | None = None,
         previous_state: GameState | None = None,
     ) -> GameState:

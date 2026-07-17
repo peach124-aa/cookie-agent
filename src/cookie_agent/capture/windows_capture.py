@@ -34,11 +34,11 @@ class WindowsCapture(BaseCaptureSource):
         self.height = height
         self._frame_count = 0
 
-    def capture(self) -> Frame | None:
+    def capture(self) -> Frame:
         """Capture a single frame from the target Windows application window.
 
         Returns:
-            Frame | None: The captured Frame with raw RGB bytes, or None.
+            Frame: The captured Frame with raw RGB bytes.
 
         Raises:
             WindowNotFoundError: If the emulator window is not found.

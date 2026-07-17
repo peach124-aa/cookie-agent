@@ -9,11 +9,12 @@ class BaseCaptureSource(ABC):
     """Abstract base class for capture source implementations."""
 
     @abstractmethod
-    def capture(self) -> Frame | None:
+    def capture(self) -> Frame:
         """Capture a single frame from the target source.
 
         Returns:
-            Frame | None: The captured Frame, or None if unsuccessful.
+            Frame: The captured Frame.
+            Raises exception on failure.
         """
         pass
 

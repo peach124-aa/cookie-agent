@@ -27,9 +27,18 @@ class MockCaptureSource:
             data=b"",
         )
         self.closed = False
+        self.should_fail = False
 
-    def capture(self) -> Frame | None:
-        """Mock capture."""
+    def capture(self) -> Frame:
+        """Capture a frame for testing."""
+        if self.should_fail:
+            from cookie_agent.capture.exceptions import CaptureError
+
+            raise CaptureError("Mock capture failed")
+        if self._frame is None:
+            from cookie_agent.capture.exceptions import CaptureError
+
+            raise CaptureError("No frame available")
         return self._frame
 
     def close(self) -> None:
@@ -184,5 +193,7 @@ def test_capture_failure(environment: CookieEnvironment) -> None:
     """Verify missing frame returns error."""
     cast(MockCaptureSource, environment._capture_source)._frame = None
 
-    with pytest.raises(AgentEnvironmentError, match="Failed to capture initial frame"):
+    from cookie_agent.capture.exceptions import CaptureError
+
+    with pytest.raises(CaptureError, match="No frame available"):
         environment.reset()
